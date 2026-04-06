@@ -404,7 +404,7 @@
             const isA = userRoute === 'A';
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
-                const l = {rule:"ルール", graphic:"グラフィック", effect:"演出(振動・光)", sound:"サウンド"}[k];
+                const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
                 q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center">
                     <p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>
                     ${createLikertHTML(`q7_${k}`, ["影響しない", "　", "　", "　", "影響した"])}
@@ -414,7 +414,7 @@
             const q6label = document.getElementById('q6-label');
             q6label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
-            const pairs = isA ? [{f:1,t:2,l:"農場グラ"},{f:2,t:3,l:"強演出"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド除"},{f:3,t:2,l:"演出除"},{f:2,t:1,l:"グラフィック除"}];
+            const pairs = isA ? [{f:1,t:2,l:"グラフィック"},{f:2,t:3,l:"エフェクト"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド削減"},{f:3,t:2,l:"エフェクト削減"},{f:2,t:1,l:"グラフィック削減"}];
             pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`)}</div>`; });
             switchScreen('post');
         };

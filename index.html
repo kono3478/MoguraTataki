@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたき研究調査システム v9.6</title>
+    <title>モグラたたき研究調査システム v9.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -83,7 +83,8 @@
             0% { opacity: 1; transform: translate(-50%, 0); } 
             100% { opacity: 0; transform: translate(-50%, -20px); } 
         }
-        .score-popup-sober { position: fixed; pointer-events: none; font-weight: bold; font-size: 1.2rem; z-index: 1000; animation: score-pop-sober 0.4s ease-out forwards; color: #64748b; }
+        /* モード1,2用のスコア表示：色を白に変更し、視認性のための影を追加 */
+        .score-popup-sober { position: fixed; pointer-events: none; font-weight: bold; font-size: 2.4rem; z-index: 1000; animation: score-pop-sober 0.4s ease-out forwards; color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.5), -1px -1px 0px rgba(0,0,0,0.2); }
 
         .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 900; animation: particle-fly var(--duration) cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
         @keyframes particle-fly { 0% { transform: translate(0,0) scale(1.5); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
@@ -127,7 +128,7 @@
 
     <!-- Debug Menu -->
     <div id="debug-menu" class="hidden">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase text-center">Admin Console v9.6</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase text-center">Admin Console v9.8</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE (Sober Circles)</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC (Sober Farm)</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT (Juicy FX)</div>
@@ -141,7 +142,7 @@
     <!-- 1. Start Screen -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter">モグラたたき研究</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-xs">Research System v9.6 FINAL</p>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-xs">Research System v9.8 FINAL</p>
         
         <div class="mb-12 text-left">
             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3">学籍番号を入力してください</label>
@@ -159,7 +160,7 @@
         <div class="survey-card"><p class="font-bold mb-8">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
         <div class="survey-card"><p class="font-bold mb-8">Q2. あなたはゲームが得意ですか？</p><div id="likert-q2"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-8 text-center text-sm uppercase text-slate-500 tracking-widest">Q3. 面白さへの影響予想 (1〜5)</p>
+            <p class="font-bold mb-8">Q3. ゲームを構成する以下の要素はおもしろさにどの程度影響すると考えますか (1〜5)</p>
             <div class="space-y-16">
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● ルール</p><div id="likert-q3-rule"></div></div>
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● グラフィック</p><div id="likert-q3-graphic"></div></div>
@@ -194,19 +195,32 @@
     <!-- 5. Post Survey -->
     <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1">
         <h2 class="text-4xl font-black mb-12 text-center text-slate-900">事後アンケート</h2>
-        <div class="survey-card"><p class="font-bold mb-10 text-xl">Q4. 各モードのおもしろさを5段階で選んでください（1：つまらなかった～5：おもしろかった）</p><div id="q4-container" class="space-y-16"></div></div>
+        
+        <!-- Q4 -->
+        <div class="survey-card"><p class="font-bold mb-10 text-xl">Q4. 4つのモードを比較したとき、それぞれのおもしろさはどの程度でしたか（1：つまらなかった～5：おもしろかった）</p><div id="q4-container" class="space-y-16"></div></div>
+        
+        <!-- Q5 -->
         <div class="survey-card">
-            <p class="font-bold mb-10 text-xl">Q5. おもしろかったモードの順位を選択してください (重複不可)</p>
+            <p class="font-bold mb-10 text-xl">Q5. 4つのモードをおもしろかった順に1位から4位まで選択してください (必須・重複不可)</p>
             <div class="space-y-8">
                 <div class="flex items-center gap-6"><span>1位</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
                 <div class="flex items-center gap-6"><span>2位</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
                 <div class="flex items-center gap-6"><span>3位</span><select id="r3" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
                 <div class="flex items-center gap-6"><span>4位</span><select id="r4" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
             </div>
+            <!-- エラー表示エリア -->
+            <p id="q5-error" class="text-red-500 font-bold mt-4 hidden text-center">※順位をすべて重複なく選択してください</p>
         </div>
-        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-center">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと考えますか (1〜5)</p><div id="q7-container" class="space-y-16"></div></div>
+        
+        <!-- Q6 -->
+        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと考えますか (1〜5)</p><div id="q7-container" class="space-y-16"></div></div>
+        
+        <!-- Q7 -->
         <div class="survey-card"><p id="q6-label" class="font-bold mb-10 text-xl text-center"></p><div id="q6-container" class="space-y-16"></div></div>
-        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
+
+        <!-- Free Text -->
+        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="感想をご記入ください"></textarea></div>
+        
         <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
     </div>
 
@@ -316,7 +330,7 @@
             if (screens[id]) screens[id].classList.remove('hidden');
         }
 
-        function createLikertHTML(name, labels = ["全く", "あまり", "普通", "やや", "非常に"]) {
+        function createLikertHTML(name, labels = ["全く", "あまり", "普通", "非常に"]) {
             return `<div class="likert-container">${[1,2,3,4,5].map(v => `<label class="likert-item"><span class="likert-label">${labels[v-1] || '　'}</span><span class="likert-num">${v}</span><input type="radio" name="${name}" value="${v}" ${v === 3 ? 'checked' : ''}></label>`).join('')}</div>`;
         }
 
@@ -402,10 +416,7 @@
             mole.appendChild(document.getElementById(isBonus ? 'bonus-mole-template' : 'mole-template').content.cloneNode(true));
             mole.dataset.type = isBonus ? 'bonus' : 'normal';
             mole.classList.add('up');
-            
-            // 赤モグラ（ボーナス）の出現時間を70%に短縮
             const actualStay = isBonus ? config.stay * 0.7 : config.stay;
-            
             setTimeout(() => { if (mole) mole.classList.remove('up'); }, actualStay);
         }
 
@@ -444,11 +455,29 @@
 
         window.finalSubmit = async () => {
             const btn = document.getElementById('final-submit-btn');
+            const errorArea = document.getElementById('q5-error');
+            
+            // Q5のバリデーション：すべて選択されているか、および重複がないか
+            const r1 = document.getElementById('r1').value;
+            const r2 = document.getElementById('r2').value;
+            const r3 = document.getElementById('r3').value;
+            const r4 = document.getElementById('r4').value;
+            
+            const ranks = [r1, r2, r3, r4];
+            const uniqueRanks = new Set(ranks.filter(r => r !== ""));
+            
+            if (uniqueRanks.size < 4) {
+                errorArea.classList.remove('hidden');
+                document.getElementById('r1').scrollIntoView({ behavior: 'smooth' });
+                return;
+            } else {
+                errorArea.classList.add('hidden');
+            }
+
             btn.disabled = true; btn.textContent = "データを送信中...";
             if (auth && !user) await initAuth();
-            const post = { q4:{}, q5:[], q6:{}, q7:{}, free: document.getElementById('free-ans').value };
+            const post = { q4:{}, q5:[r1, r2, r3, r4], q6:{}, q7:{}, free: document.getElementById('free-ans').value };
             [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`)?.value || "3");
-            post.q5 = [1,2,3,4].map(i => document.getElementById(`r${i}`).value);
             [1,2,3,4].forEach(m => { const el = document.querySelector(`input[name="q6_${m}"]:checked`); if(el) post.q6[m] = el.value; });
             ["rule", "graphic", "effect", "sound"].forEach(k => post.q7[k] = document.querySelector(`input[name="q7_${k}"]:checked`)?.value || "3");
             sessionData.post = post; sessionData.timestamp = serverTimestamp(); sessionData.route = userRoute; sessionData.userId = user ? user.uid : "unknown-" + Date.now();
@@ -502,6 +531,7 @@
         function showJuicyPopup(x, y, pts) { const p = document.createElement('div'); p.className = `score-popup-juicy`; p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 800); }
         function showSoberPopup(x, y, pts) { const p = document.createElement('div'); p.className = `score-popup-sober`; p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 400); }
 
+        // --- Data Functions ---
         window.openConfirmModal = () => screens.modal.classList.remove('hidden');
         window.closeConfirmModal = () => screens.modal.classList.add('hidden');
         window.executeDataReset = async () => {
@@ -535,6 +565,7 @@
             } catch (err) { console.error(err); alert("エラー発生"); btn.textContent = originalText; }
         };
 
+        // --- KEY HANDLER ---
         window.addEventListener('keydown', e => {
             const key = e.key ? e.key.toUpperCase() : null;
             const code = e.code;

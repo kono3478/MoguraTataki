@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたき研究調査システム v9.26</title>
+    <title>モグラたたきアンケート v9.31</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -40,15 +40,45 @@
         .theme-simple .simple-mole { display: flex !important; }
         .theme-farm .farm-mole { display: block !important; }
         .theme-farm .simple-mole { display: none !important; }
+
+        /* エフェクト：画面の揺れ */
         @keyframes strong-shake { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-10px, 10px); } 20%, 40%, 60%, 80% { transform: translate(10px, -10px); } }
         .shake-active { animation: strong-shake 0.25s cubic-bezier(.36,.07,.19,.97) both; }
+
+        /* フラッシュ演出 */
         @keyframes flash-white { 0% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(255,255,255,0); } }
         .flash-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 5000; display: none; }
         .flash-active { display: block; animation: flash-white 0.3s ease-out forwards; }
-        @keyframes float-up-score { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 30% { transform: translate(-50%, -100px) scale(2); opacity: 1; } 100% { transform: translate(-50%, -250px) scale(3); opacity: 0; } }
-        .score-popup { position: fixed; pointer-events: none; font-weight: 900; font-size: 4rem; z-index: 1000; animation: float-up-score 0.7s ease-out forwards; text-shadow: 4px 4px 0px white; color: #1e293b; }
+
+        /* 得点表示：ジューシー（モード3,4用） */
+        @keyframes juicy-pop { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 30% { transform: translate(-50%, -100px) scale(2); opacity: 1; } 100% { transform: translate(-50%, -250px) scale(3); opacity: 0; } }
+        .score-popup-juicy { position: fixed; pointer-events: none; font-weight: 900; font-size: 4rem; z-index: 1000; animation: juicy-pop 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; text-shadow: 4px 4px 0px white; color: #1e293b; }
+        
+        /* 得点表示：シンプル（モード1,2用：白、1.5倍サイズ、黒い縁取り） */
+        @keyframes sober-pop { 0% { transform: translate(-50%, 0); opacity: 1; } 100% { transform: translate(-50%, -50px); opacity: 0; } }
+        .score-popup-sober { 
+            position: fixed; 
+            pointer-events: none; 
+            font-weight: 900; 
+            font-size: 3.3rem; 
+            z-index: 1000; 
+            animation: sober-pop 0.6s ease-out forwards; 
+            color: #ffffff; 
+            /* 多重影による強固な黒い縁取り */
+            text-shadow: 
+                2px 2px 0 #000,
+               -2px -2px 0 #000,
+                2px -2px 0 #000,
+               -2px 2px 0 #000,
+                0px 2px 0 #000,
+                0px -2px 0 #000,
+                2px 0px 0 #000,
+               -2px 0px 0 #000;
+        }
+
         .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 900; animation: particle-fly var(--duration) cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
         @keyframes particle-fly { 0% { transform: translate(0,0) scale(1.5); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
+
         .screen { width: 100%; max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; }
         .hidden { display: none !important; }
         .survey-card { background: white; padding: 2rem; border-radius: 2.5rem; border: 1px solid #f1f5f9; margin-bottom: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
@@ -68,7 +98,6 @@
 
     <div id="flash-overlay" class="flash-overlay"></div>
 
-    <!-- Confirm Modal -->
     <div id="modal-confirm" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-2xl font-black mb-4 text-slate-900">データの全削除</h3>
@@ -80,9 +109,8 @@
         </div>
     </div>
 
-    <!-- Debug Menu -->
     <div id="debug-menu" class="hidden text-center">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.26</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.31</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
@@ -93,45 +121,41 @@
         <p class="mt-8 text-slate-500 font-bold text-sm">Shift+M: Menu / Shift+D: CSV / Shift+R: Reset</p>
     </div>
 
-    <!-- Start Screen -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
-        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center leading-tight">モグラたたき<br>研究調査</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px] text-center">System v9.26 (Syncing...)</p>
+        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center leading-tight">モグラたたき<br>アンケート</h1>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px] text-center">System v9.31 (Ready)</p>
         <div class="mb-12 text-left">
             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の3桁の数字を入力してください</label>
             <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
         </div>
         <button onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">
-            調査を開始する
+            開始する
         </button>
-        <p id="auth-status" class="mt-4 text-[10px] text-slate-300 uppercase">Connecting...</p>
+        <p id="auth-status" class="mt-4 text-[10px] text-slate-300 uppercase text-center">Connecting...</p>
     </div>
 
-    <!-- Pre-Survey -->
     <div id="screen-pre-survey" class="screen hidden max-h-[95vh] overflow-y-auto px-1 text-slate-800">
         <h2 class="text-3xl font-black mb-10 text-center text-slate-900">事前アンケート</h2>
         <div class="survey-card"><p class="font-bold mb-8 text-lg">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
         <div class="survey-card"><p class="font-bold mb-8 text-lg">Q2. あなたはゲームが得意ですか？</p><div id="likert-q2"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-8 text-lg text-center">Q3. 各要素はおもしろさにどの程度影響すると考えますか (1〜5)</p>
+            <p class="font-bold mb-8 text-lg text-center">Q3. 以下の各要素はゲームのおもしろさにどの程度影響すると思いますか (1〜5)</p>
             <div class="space-y-16">
-                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● ルール</p><div id="likert-q3-rule"></div></div>
-                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● グラフィック</p><div id="likert-q3-graphic"></div></div>
-                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● エフェクト</p><div id="likert-q3-effect"></div></div>
-                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● サウンド</p><div id="likert-q3-sound"></div></div>
+                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● ルール</p><div id="likert-q3-rule"></div></div>
+                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● グラフィック</p><div id="likert-q3-graphic"></div></div>
+                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● エフェクト</p><div id="likert-q3-effect"></div></div>
+                <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● サウンド</p><div id="likert-q3-sound"></div></div>
             </div>
         </div>
         <button onclick="commitPreSurvey()" class="w-full bg-slate-900 text-white font-black py-8 rounded-[2.5rem] mb-20 shadow-2xl active:scale-95 transition text-xl">回答を保存して開始</button>
     </div>
 
-    <!-- Interval -->
     <div id="screen-inter" class="screen hidden bg-white p-12 rounded-[4.5rem] shadow-2xl text-center border border-slate-100">
         <h2 id="inter-title" class="text-4xl font-black mb-6 text-slate-900 leading-tight">準備</h2>
         <p id="inter-desc" class="text-slate-500 mb-12 font-bold leading-relaxed text-2xl"></p>
         <button onclick="launchMode()" class="w-full bg-blue-600 text-white font-black py-8 px-6 rounded-[3.5rem] shadow-2xl active:scale-95 transition text-3xl">START</button>
     </div>
 
-    <!-- Game Screen -->
     <div id="screen-game" class="hidden w-full max-w-sm flex flex-col items-center">
         <div id="impact-layer" class="w-full h-full fixed inset-0 pointer-events-none z-40"></div>
         <div class="w-full flex justify-between items-center mb-8 bg-white/95 p-6 rounded-[3rem] shadow-xl border-4 border-white">
@@ -146,7 +170,6 @@
         </div>
     </div>
 
-    <!-- Results Summary -->
     <div id="screen-game-results" class="screen hidden bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h2 class="text-3xl font-black mb-8 text-slate-900 tracking-tighter text-center">プレイ結果まとめ</h2>
         <div id="results-summary-list" class="space-y-4 mb-10 text-left"></div>
@@ -155,12 +178,11 @@
         </button>
     </div>
 
-    <!-- Post-Survey -->
     <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1 text-slate-800">
         <h2 class="text-4xl font-black mb-12 text-center tracking-tighter text-slate-900">事後アンケート</h2>
-        <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 4つのモードのおもしろさをそれぞれ評価してください</p><div id="q4-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 各モードのおもしろさをそれぞれ評価してください</p><div id="q4-container" class="space-y-16"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください (重複不可)</p>
+            <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください</p>
             <div class="space-y-8">
                 <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-yellow-400 text-white rounded-2xl font-black text-xl shadow-sm">1</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
                 <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-300 text-white rounded-2xl font-black text-xl shadow-sm">2</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
@@ -169,13 +191,12 @@
             </div>
             <p id="q5-error" class="text-red-500 font-black mt-6 hidden text-center bg-red-50 p-4 rounded-2xl border-2 border-red-100 shadow-sm">※順位をすべて重複なく選択してください</p>
         </div>
-        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと思いますか</p><div id="q7-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. 以下の要素はゲームのおもしろさにどの程度影響したと思いますか</p><div id="q7-container" class="space-y-16"></div></div>
         <div class="survey-card"><p id="q6-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p><div id="q6-container" class="space-y-16"></div></div>
         <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800 text-center">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="感想などをご自由にご記入ください..."></textarea></div>
-        <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
+        <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">送信して終了</button>
     </div>
 
-    <!-- Final screen -->
     <div id="screen-end" class="screen hidden bg-white p-12 rounded-[5rem] shadow-2xl text-center border border-slate-100">
         <div class="w-40 h-40 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-12 text-8xl font-bold shadow-inner animate-pulse">✓</div>
         <h2 class="text-5xl font-black mb-8 text-slate-900 tracking-tighter text-center">送信完了</h2>
@@ -183,7 +204,6 @@
         <button onclick="location.reload()" class="text-slate-300 font-bold text-xs tracking-[0.8em] underline uppercase">Return to Top</button>
     </div>
 
-    <!-- Templates -->
     <template id="mole-template">
         <div class="mole-graphic farm-mole">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -215,9 +235,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ==========================================
-        // 動作実績のある「シューティングゲーム」の設定とIDを適用
-        // ==========================================
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBpzqOlBowj-2ERZJOZzZnh-KbfBJ6wN5Y",
             authDomain: "shooter1-4.firebaseapp.com",
@@ -227,16 +245,13 @@
             appId: "1:837556934913:web:d4ffbadf8faae548772300",
             measurementId: "G-G0M85T9HZ3"
         };
-        // セキュリティルールの許可パスに合わせてIdを設定
         const customAppId = 'shooter1-4-session'; 
-        // ==========================================
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         let user = null;
 
-        // ログイン処理を即座に開始
         const startSignIn = async () => {
             try {
                 const cred = await signInAnonymously(auth);
@@ -275,10 +290,10 @@
         };
 
         const modes = {
-            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルール設定のみ" },
-            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "農場テーマ" },
-            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "強演出" },
-            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "フル演出（BGMあり）" }
+            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルールのみ" },
+            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "グラフィック追加" },
+            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "エフェクト追加" },
+            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "サウンド追加" }
         };
 
         function switchScreen(id) {
@@ -286,7 +301,7 @@
             if (screens[id]) screens[id].classList.remove('hidden');
         }
 
-        function createLikertHTML(name, labels = ["全く", "あまり", "普通", "やや", "非常"]) {
+        function createLikertHTML(name, labels = ["いいえ", "　", "　", "　　", "はい"]) {
             return `<div class="likert-container">${[1, 2, 3, 4, 5].map(v => `<label class="likert-item"><span class="likert-label">${labels[v-1] || '　'}</span><span class="likert-num">${v}</span><input type="radio" name="${name}" value="${v}" ${v === 3 ? 'checked' : ''}></label>`).join('')}</div>`;
         }
 
@@ -331,7 +346,10 @@
                 m.classList.remove('up'); m.innerHTML = '';
                 m.appendChild(document.getElementById('mole-template').content.cloneNode(true));
             });
-            if (modeId === 4) bgmAudio.play().catch(() => {});
+            if (modeId === 4) {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                setTimeout(() => { if(isPlaying) bgmAudio.play().catch(() => {}); }, 150);
+            }
             gameLoop();
             timerId = setInterval(() => { timerVal--; document.getElementById('timer-val').textContent = `${timerVal}s`; if (timerVal <= 0) stopGame(modeId); }, 1000);
         }
@@ -379,13 +397,13 @@
             const isA = userRoute === 'A';
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
-                const l = {rule:"ルール", graphic:"グラフィック", effect:"演出(振動・光)", sound:"サウンド"}[k];
+                const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
                 q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>${createLikertHTML(`q7_${k}`)}</div>`;
             });
             const q6label = document.getElementById('q6-label');
             q6label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
-            const pairs = isA ? [{f:1,t:2,l:"農場グラ"},{f:2,t:3,l:"強演出"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド除"},{f:3,t:2,l:"演出除"},{f:2,t:1,l:"グラフィック除"}];
+            const pairs = isA ? [{f:1,t:2,l:"グラフィック"},{f:2,t:3,l:"エフェクト"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド除"},{f:3,t:2,l:"エフェクト除"},{f:2,t:1,l:"グラフィック除"}];
             pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`)}</div>`; });
             switchScreen('post');
         };
@@ -396,12 +414,10 @@
             if (uniqueRanks.size < 4) { document.getElementById('q5-error').classList.remove('hidden'); return; }
             btn.disabled = true; btn.textContent = "データを送信中...";
             try {
-                // 送信直前にログインを確実にする
                 const confirmedUser = user || await signInAnonymously(auth);
                 const post = { q4:{}, q5:[document.getElementById('r1').value, document.getElementById('r2').value, document.getElementById('r3').value, document.getElementById('r4').value], q6:{}, q7:{}, free: document.getElementById('free-ans').value };
                 [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`).value);
                 
-                // Firestoreへ書き込み
                 await addDoc(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'), { 
                     ...sessionData, 
                     post, 
@@ -411,11 +427,7 @@
                     game_type: "mole_v9_final" 
                 }); 
                 switchScreen('end'); 
-            } catch (err) { 
-                console.error("Firestore Save Error:", err);
-                alert("送信に失敗しました。\n詳細: " + err.message); 
-                btn.disabled = false; btn.textContent = "再送信"; 
-            }
+            } catch (err) { console.error("Firestore Save Error:", err); alert("送信に失敗しました。\n詳細: " + err.message); btn.disabled = false; btn.textContent = "再送信"; }
         };
 
         function whack(e) {
@@ -425,12 +437,16 @@
             score += isBonus ? 10 : 1; this.classList.remove('up'); document.getElementById('score-val').textContent = score;
             const clientX = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
+            
             if (mode.juicy) {
                 document.getElementById('main-body').classList.add('shake-active');
                 setTimeout(() => document.getElementById('main-body').classList.remove('shake-active'), 200);
+                showJuicyPopup(clientX, clientY, isBonus ? 10 : 1);
+            } else {
+                showSoberPopup(clientX, clientY, isBonus ? 10 : 1);
             }
+            
             if (mode.sound) { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); playTone(isBonus); }
-            showPopup(clientX, clientY, isBonus ? 10 : 1);
             if (e.type.startsWith('touch')) e.preventDefault();
         }
 
@@ -443,10 +459,16 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
-        function showPopup(x, y, pts) {
-            const p = document.createElement('div'); p.className = `score-popup`;
+        function showJuicyPopup(x, y, pts) {
+            const p = document.createElement('div'); p.className = `score-popup-juicy`;
             p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`;
             document.body.appendChild(p); setTimeout(() => p.remove(), 700);
+        }
+
+        function showSoberPopup(x, y, pts) {
+            const p = document.createElement('div'); p.className = `score-popup-sober`;
+            p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`;
+            document.body.appendChild(p); setTimeout(() => p.remove(), 600);
         }
 
         window.executeDataReset = async () => {
@@ -467,12 +489,8 @@
                 let csv = "\uFEFF"; csv += "学籍番号,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_P1,Q6_P2,Q6_P3,自由記述\n";
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
-                    // Timestampオブジェクトを安全に日付文字列へ変換
                     let dateStr = "";
-                    if (d.timestamp) {
-                        try { dateStr = d.timestamp.toDate().toLocaleString(); } 
-                        catch(e) { dateStr = d.timestamp; }
-                    }
+                    if (d.timestamp) { try { dateStr = d.timestamp.toDate().toLocaleString(); } catch(e) { dateStr = d.timestamp; } }
                     const row = [d.studentId||"",d.route||"",dateStr,d.scores?.["1"]||0,d.scores?.["2"]||0,d.scores?.["3"]||0,d.scores?.["4"]||0,d.pre?.freq||3,d.pre?.skill||3,d.post?.q4?.["1"]||3,d.post?.q4?.["2"]||3,d.post?.q4?.["3"]||3,d.post?.q4?.["4"]||3,d.post?.q5?.[0]||"",d.post?.q5?.[1]||"",d.post?.q5?.[2]||"",d.post?.q5?.[3]||"",d.post?.q6?.["1"]||3,d.post?.q6?.["2"]||3,d.post?.q6?.["3"]||3,`"${(d.post?.free||"").replace(/"/g,'""')}"`];
                     csv += row.join(",") + "\n";
                 });

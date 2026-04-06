@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたき研究調査システム v9.5</title>
+    <title>モグラたたき研究調査システム v9.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -127,7 +127,7 @@
 
     <!-- Debug Menu -->
     <div id="debug-menu" class="hidden">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase text-center">Admin Console v9.5</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase text-center">Admin Console v9.6</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE (Sober Circles)</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC (Sober Farm)</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT (Juicy FX)</div>
@@ -141,7 +141,7 @@
     <!-- 1. Start Screen -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter">モグラたたき研究</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-xs">Research System v9.5 FINAL</p>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-xs">Research System v9.6 FINAL</p>
         
         <div class="mb-12 text-left">
             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3">学籍番号を入力してください</label>
@@ -159,7 +159,7 @@
         <div class="survey-card"><p class="font-bold mb-8">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
         <div class="survey-card"><p class="font-bold mb-8">Q2. あなたはゲームが得意ですか？</p><div id="likert-q2"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-8">Q3. ゲームを構成する以下の要素はおもしろさにどの程度影響すると考えますか (1〜5)</p>
+            <p class="font-bold mb-8 text-center text-sm uppercase text-slate-500 tracking-widest">Q3. 面白さへの影響予想 (1〜5)</p>
             <div class="space-y-16">
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● ルール</p><div id="likert-q3-rule"></div></div>
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase">● グラフィック</p><div id="likert-q3-graphic"></div></div>
@@ -194,9 +194,9 @@
     <!-- 5. Post Survey -->
     <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1">
         <h2 class="text-4xl font-black mb-12 text-center text-slate-900">事後アンケート</h2>
-        <div class="survey-card"><p class="font-bold mb-10 text-xl">Q4. 4つのモードを比較したとき、それぞれのおもしろさはどの程度でしたか（1：つまらなかった～5：おもしろかった）</p><div id="q4-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-10 text-xl">Q4. 各モードのおもしろさを5段階で選んでください（1：つまらなかった～5：おもしろかった）</p><div id="q4-container" class="space-y-16"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-10 text-xl">Q5. 4つのモードをおもしろかった順に1位から4位まで選択してください (重複不可)</p>
+            <p class="font-bold mb-10 text-xl">Q5. おもしろかったモードの順位を選択してください (重複不可)</p>
             <div class="space-y-8">
                 <div class="flex items-center gap-6"><span>1位</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
                 <div class="flex items-center gap-6"><span>2位</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
@@ -204,9 +204,9 @@
                 <div class="flex items-center gap-6"><span>4位</span><select id="r4" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
             </div>
         </div>
-        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと考えますか (1〜5)</p><div id="q7-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-center">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと考えますか (1〜5)</p><div id="q7-container" class="space-y-16"></div></div>
         <div class="survey-card"><p id="q6-label" class="font-bold mb-10 text-xl text-center"></p><div id="q6-container" class="space-y-16"></div></div>
-        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="感想をご記入ください"></textarea></div>
+        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="感想をご記入ください"></textarea></div>
         <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
     </div>
 
@@ -252,7 +252,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Configs (Robust initialization for external envs) ---
+        // --- Firebase Configs ---
         let db, auth;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mole-research-tab-v9';
         const RESEARCH_COLLECTION = "mole_research_responses_final";
@@ -265,9 +265,7 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
             }
-        } catch (e) {
-            console.error("Firebase Initialization Error:", e);
-        }
+        } catch (e) { console.error("Firebase Error", e); }
 
         let user;
         const initAuth = async () => {
@@ -278,10 +276,7 @@
                 } else { await signInAnonymously(auth); }
             } catch (e) { console.warn("Auth Fail", e); }
         };
-        if (auth) {
-            onAuthStateChanged(auth, u => { user = u; });
-            initAuth();
-        }
+        if (auth) { onAuthStateChanged(auth, u => { user = u; }); initAuth(); }
 
         // --- Audio ---
         let audioCtx;
@@ -332,10 +327,7 @@
             if (!sid) { alert("学籍番号を入力してください"); return; }
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            bgmAudio.play().then(() => {
-                bgmAudio.pause();
-                bgmAudio.currentTime = 0;
-            }).catch(() => {});
+            bgmAudio.play().then(() => { bgmAudio.pause(); bgmAudio.currentTime = 0; }).catch(() => {});
             bgmAudio.load();
             sessionData.studentId = sid;
             const lastDigitStr = sid.replace(/[^0-9]/g, '').slice(-1);
@@ -410,7 +402,11 @@
             mole.appendChild(document.getElementById(isBonus ? 'bonus-mole-template' : 'mole-template').content.cloneNode(true));
             mole.dataset.type = isBonus ? 'bonus' : 'normal';
             mole.classList.add('up');
-            setTimeout(() => { if (mole) mole.classList.remove('up'); }, config.stay);
+            
+            // 赤モグラ（ボーナス）の出現時間を70%に短縮
+            const actualStay = isBonus ? config.stay * 0.7 : config.stay;
+            
+            setTimeout(() => { if (mole) mole.classList.remove('up'); }, actualStay);
         }
 
         function stopGame(modeId) {
@@ -458,9 +454,7 @@
             sessionData.post = post; sessionData.timestamp = serverTimestamp(); sessionData.route = userRoute; sessionData.userId = user ? user.uid : "unknown-" + Date.now();
             sessionData.game_type = GAME_TYPE_TAG;
             try {
-                if (db) {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), sessionData);
-                }
+                if (db) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), sessionData);
                 switchScreen('end');
             } catch (err) { alert("送信エラー。再試行してください。"); btn.disabled = false; btn.textContent = "再送信"; }
         };
@@ -469,15 +463,11 @@
             if (!this.classList.contains('up')) return;
             const mId = routeSteps[currentStepIndex] || 1; const mode = modes[mId]; const isBonus = this.dataset.type === 'bonus';
             score += isBonus ? 10 : 1; this.classList.remove('up'); document.getElementById('score-val').textContent = score;
-            
-            // Extract coordinates from mouse or touch
             const clientX = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
-
             if (mode.vib && navigator.vibrate) navigator.vibrate(isBonus ? [180, 70, 180] : 60);
             if (mode.sound) { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); playTone(isBonus); }
             if (mode.juicy) { spawnParticles(clientX, clientY, isBonus); showJuicyPopup(clientX, clientY, isBonus ? 10 : 1); } else { showSoberPopup(clientX, clientY, isBonus ? 10 : 1); }
-            
             if (e.type.startsWith('touch')) e.preventDefault();
         }
 
@@ -512,7 +502,6 @@
         function showJuicyPopup(x, y, pts) { const p = document.createElement('div'); p.className = `score-popup-juicy`; p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 800); }
         function showSoberPopup(x, y, pts) { const p = document.createElement('div'); p.className = `score-popup-sober`; p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 400); }
 
-        // --- Data Functions ---
         window.openConfirmModal = () => screens.modal.classList.remove('hidden');
         window.closeConfirmModal = () => screens.modal.classList.add('hidden');
         window.executeDataReset = async () => {
@@ -523,67 +512,36 @@
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION));
                 const deletes = snap.docs.map(d => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION, d.id)));
                 await Promise.all(deletes);
-                alert("削除が完了しました。");
-                location.reload();
+                alert("削除が完了しました。"); location.reload();
             } catch (e) { alert("削除失敗。"); btn.textContent = "はい、削除します"; btn.disabled = false; }
         };
 
         window.triggerCSVDownload = async () => {
             const btn = document.getElementById('btn-csv-debug');
-            const originalText = btn.textContent;
-            btn.textContent = "CSV取得中...";
+            const originalText = btn.textContent; btn.textContent = "CSV取得中...";
             if (!db) { alert("DB未接続"); btn.textContent = originalText; return; }
             try {
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION));
                 if (snap.empty) { alert("データがありません。"); btn.textContent = originalText; return; }
-                let csv = "\uFEFF"; // BOM for Excel Japanese
-                csv += "学籍番号,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,事前予想R,事前予想G,事前予想E,事前予想S,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_R,Q6_G,Q6_E,Q6_S,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
+                let csv = "\uFEFF"; csv += "学籍番号,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,事前予想R,事前予想G,事前予想E,事前予想S,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_R,Q6_G,Q6_E,Q6_S,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
-                    const row = [
-                        d.studentId || "", d.route || "", d.timestamp?.toDate().toLocaleString() || "",
-                        d.scores?.["1"] || 0, d.scores?.["2"] || 0, d.scores?.["3"] || 0, d.scores?.["4"] || 0,
-                        d.pre?.freq || 3, d.pre?.skill || 3, d.pre?.exp_rule || 3, d.pre?.exp_graphic || 3, d.pre?.exp_effect || 3, d.pre?.exp_sound || 3,
-                        d.post?.q4?.["1"] || 3, d.post?.q4?.["2"] || 3, d.post?.q4?.["3"] || 3, d.post?.q4?.["4"] || 3,
-                        d.post?.q5?.[0] || "", d.post?.q5?.[1] || "", d.post?.q5?.[2] || "", d.post?.q5?.[3] || "",
-                        d.post?.q7?.rule || 3, d.post?.q7?.graphic || 3, d.post?.q7?.effect || 3, d.post?.q7?.sound || 3,
-                        d.post?.q6?.["1"] || 3, d.post?.q6?.["2"] || 3, d.post?.q6?.["3"] || 3,
-                        `"${(d.post?.free || "").replace(/"/g, '""')}"`
-                    ];
+                    const row = [d.studentId||"",d.route||"",d.timestamp?.toDate().toLocaleString()||"",d.scores?.["1"]||0,d.scores?.["2"]||0,d.scores?.["3"]||0,d.scores?.["4"]||0,d.pre?.freq||3,d.pre?.skill||3,d.pre?.exp_rule||3,d.pre?.exp_graphic||3,d.pre?.exp_effect||3,d.pre?.exp_sound||3,d.post?.q4?.["1"]||3,d.post?.q4?.["2"]||3,d.post?.q4?.["3"]||3,d.post?.q4?.["4"]||3,d.post?.q5?.[0]||"",d.post?.q5?.[1]||"",d.post?.q5?.[2]||"",d.post?.q5?.[3]||"",d.post?.q7?.rule||3,d.post?.q7?.graphic||3,d.post?.q7?.effect||3,d.post?.q7?.sound||3,d.post?.q6?.["1"]||3,d.post?.q6?.["2"]||3,d.post?.q6?.["3"]||3,`"${(d.post?.free||"").replace(/"/g,'""')}"`];
                     csv += row.join(",") + "\n";
                 });
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = `mole_research_results_${new Date().toISOString().slice(0,10)}.csv`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                btn.textContent = originalText;
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_research_results_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(link); link.click(); document.body.removeChild(link); btn.textContent = originalText;
             } catch (err) { console.error(err); alert("エラー発生"); btn.textContent = originalText; }
         };
 
-        // --- KEY HANDLER (More robust event detection) ---
         window.addEventListener('keydown', e => {
             const key = e.key ? e.key.toUpperCase() : null;
             const code = e.code;
-            
             if (e.shiftKey) {
-                // M: Debug Menu
-                if (key === 'M' || code === 'KeyM') {
-                    e.preventDefault();
-                    screens.debug.classList.toggle('hidden');
-                }
-                // D: CSV Download
-                else if (key === 'D' || code === 'KeyD') {
-                    e.preventDefault();
-                    triggerCSVDownload();
-                }
-                // R: Data Reset
-                else if (key === 'R' || code === 'KeyR') {
-                    e.preventDefault();
-                    openConfirmModal();
-                }
+                if (key === 'M' || code === 'KeyM') { e.preventDefault(); screens.debug.classList.toggle('hidden'); }
+                else if (key === 'D' || code === 'KeyD') { e.preventDefault(); triggerCSVDownload(); }
+                else if (key === 'R' || code === 'KeyR') { e.preventDefault(); openConfirmModal(); }
             }
         }, true);
 
@@ -592,7 +550,6 @@
             setupGame(mId); switchScreen('game');
         };
 
-        // Robust event binding
         document.querySelectorAll('.mole').forEach(m => {
             m.addEventListener('mousedown', whack);
             m.addEventListener('touchstart', whack, { passive: false });

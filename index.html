@@ -432,7 +432,7 @@
         function showPostSurvey() {
             const q4cont = document.getElementById('q4-container'); q4cont.innerHTML = '';
             routeSteps.forEach(m => {
-                q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">モード${m}の面白さ</p>${createLikertHTML(`q4_${m}`, ["つまらない","不満","普通","満足","最高"])}</div>`;
+                q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">モード${m}の面白さ</p>${createLikertHTML(`q4_${m}`, ["つまらない","","普通","","最高"])}</div>`;
             });
             const selects = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3'), document.getElementById('r4')];
             selects.forEach(s => { s.innerHTML = '<option value="">選択してください</option>'; [1,2,3,4].forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.textContent = `モード ${m} (${modes[m].label})`; s.appendChild(opt); }); });
@@ -448,7 +448,7 @@
             q6label.textContent = isA ? "Q7. 要素の追加によりおもしろさは増加しましたか？ (1〜5)" : "Q7. 要素の削減によりおもしろさは減少しましたか？ (1〜5)";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
             const pairs = isA ? [{f:1,t:2,l:"農場グラフィック"},{f:2,t:3,l:"激しいエフェクト・振動"},{f:3,t:4,l:"サウンド全般"}] : [{f:4,t:3,l:"サウンド削除"},{f:3,t:2,l:"エフェクト削除"},{f:2,t:1,l:"グラフィック削除"}];
-            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変","わずかに","普通","かなり",isA?"増加":"減少"])}</div>`; });
+            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変","","普通","",isA?"増加":"減少"])}</div>`; });
 
             switchScreen('post');
         }

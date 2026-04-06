@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたき研究調査システム v9.25</title>
+    <title>モグラたたきアンケート v9.25</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -95,14 +95,14 @@
 
     <!-- Start Screen -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
-        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center leading-tight">モグラたたき<br>研究調査</h1>
+        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center leading-tight">モグラたたき<br>アンケート</h1>
         <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px] text-center">System v9.25 (Ready)</p>
         <div class="mb-12 text-left">
-            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の数字（ID）を入力してください</label>
+            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の3桁の数字を入力してください</label>
             <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
         </div>
         <button onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">
-            調査を開始する
+            開始する
         </button>
         <p id="auth-status" class="mt-4 text-[10px] text-slate-300 uppercase">Connecting...</p>
     </div>
@@ -113,7 +113,7 @@
         <div class="survey-card"><p class="font-bold mb-8 text-lg">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
         <div class="survey-card"><p class="font-bold mb-8 text-lg">Q2. あなたはゲームが得意ですか？</p><div id="likert-q2"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-8 text-lg text-center">Q3. 各要素はおもしろさにどの程度影響すると考えますか (1〜5)</p>
+            <p class="font-bold mb-8 text-lg text-center">Q3. 各要素はゲームのおもしろさにどの程度影響すると考えますか (1〜5)</p>
             <div class="space-y-16">
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● ルール</p><div id="likert-q3-rule"></div></div>
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● グラフィック</p><div id="likert-q3-graphic"></div></div>
@@ -160,7 +160,7 @@
         <h2 class="text-4xl font-black mb-12 text-center tracking-tighter text-slate-900">事後アンケート</h2>
         <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 4つのモードのおもしろさをそれぞれ評価してください</p><div id="q4-container" class="space-y-16"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください (重複不可)</p>
+            <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください</p>
             <div class="space-y-8">
                 <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-yellow-400 text-white rounded-2xl font-black text-xl shadow-sm">1</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
                 <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-300 text-white rounded-2xl font-black text-xl shadow-sm">2</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
@@ -171,7 +171,7 @@
         </div>
         <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと思いますか</p><div id="q7-container" class="space-y-16"></div></div>
         <div class="survey-card"><p id="q6-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p><div id="q6-container" class="space-y-16"></div></div>
-        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800 text-center">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="感想などをご自由にご記入ください..."></textarea></div>
+        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800 text-center">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
         <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
     </div>
 
@@ -273,10 +273,10 @@
         };
 
         const modes = {
-            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルール設定のみ" },
-            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "農場テーマ" },
-            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "強演出" },
-            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "フル演出（BGMあり）" }
+            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルール" },
+            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "グラフィック" },
+            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "エフェクト" },
+            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "サウンド" }
         };
 
         function switchScreen(id) {
@@ -377,13 +377,13 @@
             const isA = userRoute === 'A';
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
-                const l = {rule:"ルール", graphic:"グラフィック", effect:"演出(振動・光)", sound:"サウンド"}[k];
+                const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
                 q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>${createLikertHTML(`q7_${k}`)}</div>`;
             });
             const q6label = document.getElementById('q6-label');
             q6label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
-            const pairs = isA ? [{f:1,t:2,l:"農場グラ"},{f:2,t:3,l:"強演出"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド除"},{f:3,t:2,l:"演出除"},{f:2,t:1,l:"グラフィック除"}];
+            const pairs = isA ? [{f:1,t:2,l:"グラフィック"},{f:2,t:3,l:"エフェクト"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド除"},{f:3,t:2,l:"エフェクト除"},{f:2,t:1,l:"グラフィック除"}];
             pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`)}</div>`; });
             switchScreen('post');
         };

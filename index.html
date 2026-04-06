@@ -197,7 +197,7 @@
         <h2 class="text-4xl font-black mb-12 text-center text-slate-900">事後アンケート</h2>
         
         <!-- Q4 -->
-        <div class="survey-card"><p class="font-bold mb-10 text-xl">Q4. 4つのモードを比較したとき、それぞれのおもしろさはどの程度でしたか（1：つまらなかった～5：おもしろかった）</p><div id="q4-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-10 text-xl">Q4. 4つのモードを比較したとき、それぞれのおもしろさはどの程度でしたか（1～5）</p><div id="q4-container" class="space-y-16"></div></div>
         
         <!-- Q5 -->
         <div class="survey-card">
@@ -350,7 +350,7 @@
             routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
             ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
                 const container = document.getElementById(`likert-${id.replace('_','-')}`);
-                if (container) container.innerHTML = createLikertHTML(id, id.includes('q3') ? ["影響なし", "　", "普通", "　", "大いに影響"] : (id==='q1'?["遊ばない","あまり","普通","やや","良く遊ぶ"]:["苦手","やや苦手","普通","やや得意","得意"]));
+                if (container) container.innerHTML = createLikertHTML(id, id.includes('q3') ? ["影響なし", "　", "普通", "　", "大いに影響"] : (id==='q1'?["遊ばない","　","普通","　","良く遊ぶ"]:["苦手","　","普通","　","得意"]));
             });
             switchScreen('pre');
         };
@@ -432,7 +432,7 @@
         function showPostSurvey() {
             const q4cont = document.getElementById('q4-container'); q4cont.innerHTML = '';
             routeSteps.forEach(m => {
-                q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">モード${m}の面白さ</p>${createLikertHTML(`q4_${m}`, ["つまらない","","普通","","最高"])}</div>`;
+                q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">モード${m}の面白さ</p>${createLikertHTML(`q4_${m}`, ["つまらない","　","普通","　","最高"])}</div>`;
             });
             const selects = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3'), document.getElementById('r4')];
             selects.forEach(s => { s.innerHTML = '<option value="">選択してください</option>'; [1,2,3,4].forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.textContent = `モード ${m} (${modes[m].label})`; s.appendChild(opt); }); });
@@ -448,7 +448,7 @@
             q6label.textContent = isA ? "Q7. 要素の追加によりおもしろさは増加しましたか？ (1〜5)" : "Q7. 要素の削減によりおもしろさは減少しましたか？ (1〜5)";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
             const pairs = isA ? [{f:1,t:2,l:"農場グラフィック"},{f:2,t:3,l:"激しいエフェクト・振動"},{f:3,t:4,l:"サウンド全般"}] : [{f:4,t:3,l:"サウンド削除"},{f:3,t:2,l:"エフェクト削除"},{f:2,t:1,l:"グラフィック削除"}];
-            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変","","普通","",isA?"増加":"減少"])}</div>`; });
+            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変","　","普通","　",isA?"増加":"減少"])}</div>`; });
 
             switchScreen('post');
         }

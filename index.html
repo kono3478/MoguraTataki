@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたき研究調査システム v9.23</title>
+    <title>モグラたたき研究調査システム v9.24</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -97,7 +97,7 @@
 
     <div id="modal-confirm" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3 class="text-2xl font-black mb-4">データの全削除</h3>
+            <h3 class="text-2xl font-black mb-4 text-slate-900">データの全削除</h3>
             <p class="text-slate-500 mb-8 font-bold">Firestore上の全回答データを削除しますか？</p>
             <div class="flex flex-col gap-3">
                 <button onclick="executeDataReset()" class="bg-red-500 text-white font-black py-4 rounded-xl">はい、削除します</button>
@@ -107,7 +107,7 @@
     </div>
 
     <div id="debug-menu" class="hidden text-center">
-        <h2 class="text-3xl font-black mb-12 uppercase">Admin Console v9.23</h2>
+        <h2 class="text-3xl font-black mb-12 uppercase">Admin Console v9.24</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
@@ -119,20 +119,20 @@
 
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center leading-tight">モグラたたき<br>研究調査</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px] text-center">Research System v9.23 FINAL</p>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px] text-center">Research System v9.24 FINAL</p>
         <div class="mb-12 text-left">
-            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の数字を入力してください</label>
+            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の数字（ID）を入力してください</label>
             <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
         </div>
         <button onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">調査を開始する</button>
     </div>
 
-    <div id="screen-pre-survey" class="screen hidden max-h-[95vh] overflow-y-auto px-1">
+    <div id="screen-pre-survey" class="screen hidden max-h-[95vh] overflow-y-auto px-1 text-slate-800">
         <h2 class="text-3xl font-black mb-10 text-center text-slate-900">事前アンケート</h2>
         <div class="survey-card"><p class="font-bold mb-8 text-lg">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
         <div class="survey-card"><p class="font-bold mb-8 text-lg">Q2. あなたはゲームが得意ですか？</p><div id="likert-q2"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-8 text-lg text-center uppercase tracking-widest">Q3. 各要素はおもしろさにどの程度影響すると考えますか (1〜5)</p>
+            <p class="font-bold mb-8 text-lg text-center">Q3. 各要素はおもしろさにどの程度影響すると考えますか (1〜5)</p>
             <div class="space-y-16">
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● ルール</p><div id="likert-q3-rule"></div></div>
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● グラフィック</p><div id="likert-q3-graphic"></div></div>
@@ -140,11 +140,11 @@
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● サウンド</p><div id="likert-q3-sound"></div></div>
             </div>
         </div>
-        <button onclick="commitPreSurvey()" class="w-full bg-slate-900 text-white font-black py-8 rounded-[2.5rem] mb-20 shadow-2xl active:scale-95 transition">回答を保存して開始</button>
+        <button onclick="commitPreSurvey()" class="w-full bg-slate-900 text-white font-black py-8 rounded-[2.5rem] mb-20 shadow-2xl active:scale-95 transition text-xl">回答を保存して開始</button>
     </div>
 
     <div id="screen-inter" class="screen hidden bg-white p-12 rounded-[4.5rem] shadow-2xl text-center border border-slate-100">
-        <h2 id="inter-title" class="text-4xl font-black mb-6">準備</h2>
+        <h2 id="inter-title" class="text-4xl font-black mb-6 text-slate-900 leading-tight">準備</h2>
         <p id="inter-desc" class="text-slate-500 mb-12 font-bold leading-relaxed text-2xl"></p>
         <button onclick="launchMode()" class="w-full bg-blue-600 text-white font-black py-8 px-6 rounded-[3.5rem] shadow-2xl active:scale-95 transition text-3xl">START</button>
     </div>
@@ -211,10 +211,10 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase 設定エリア ---
-        // 画像 image_b7daeb.jpg に基づき正確な内容を埋め込みました
+        // --- Firebase CONFIG (Image image_b7daeb.jpg based) ---
+        // 画像から文字を精査し、r/V/O/0 などの誤読を徹底的に修正したキーです
         const manualFirebaseConfig = {
             apiKey: "AIzaSyD2JgMu1GcVru5nElFw3K0TQx66P4FeOOQ",
             authDomain: "mogura-a2faa.firebaseapp.com",
@@ -225,31 +225,32 @@
             measurementId: "G-B1N418TL45"
         };
 
-        let db, auth;
+        let db, auth, user;
         const appId = 'mole-research-final-v9';
         const RESEARCH_COLLECTION = "mole_research_responses_final";
         const GAME_TYPE_TAG = "mole_v9_final";
 
+        // GitHub環境では manualFirebaseConfig を強制使用
         try {
-            const config = (typeof __firebase_config !== 'undefined' && __firebase_config) ? JSON.parse(__firebase_config) : manualFirebaseConfig;
+            const config = (typeof __firebase_config !== 'undefined' && __firebase_config && __firebase_config !== "{}") 
+                ? JSON.parse(__firebase_config) 
+                : manualFirebaseConfig;
+            
             const app = initializeApp(config);
             auth = getAuth(app);
             db = getFirestore(app);
+            console.log("Firebase initialized with project:", config.projectId);
         } catch (e) { console.error("Firebase Init Error:", e); }
 
-        let user;
         const initAuth = async () => {
             if (!auth) return null;
             try {
-                let userCredential;
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    userCredential = await signInWithCustomToken(auth, __initial_auth_token);
-                } else { 
-                    userCredential = await signInAnonymously(auth); 
-                }
+                let userCredential = (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) 
+                    ? await signInWithCustomToken(auth, __initial_auth_token) 
+                    : await signInAnonymously(auth);
                 return userCredential.user;
             } catch (e) { 
-                console.error("Auth failed details:", e);
+                console.error("Auth failed error details:", e); 
                 throw e; 
             }
         };
@@ -281,10 +282,10 @@
         };
 
         const modes = {
-            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルール設定のみ" },
-            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "農場テーマ" },
-            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "強演出" },
-            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "フル演出・BGM" }
+            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルール設定のみ (地味)" },
+            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "農場テーマ (地味)" },
+            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "強演出 (派手)" },
+            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "フル演出・BGM (派手)" }
         };
 
         function switchScreen(id) {
@@ -298,11 +299,15 @@
 
         window.handleStartClick = () => {
             const sidInput = document.getElementById('student-id');
-            if (!sidInput.value.trim()) { alert("IDを入力してください"); return; }
+            const sid = sidInput.value.trim().toUpperCase();
+            if (!sid) { alert("IDを入力してください"); return; }
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            bgmAudio.play().then(() => { bgmAudio.pause(); bgmAudio.currentTime = 0; }).catch(() => {});
             bgmAudio.load();
-            sessionData.studentId = sidInput.value.trim().toUpperCase();
-            const lastDigit = parseInt(sessionData.studentId.slice(-1)) || 1;
+            sessionData.studentId = sid;
+            const lastDigitStr = sid.replace(/[^0-9]/g, '').slice(-1);
+            const lastDigit = lastDigitStr === "" ? 1 : parseInt(lastDigitStr);
             userRoute = (lastDigit % 2 !== 0) ? 'A' : 'B';
             routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
             ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
@@ -313,7 +318,14 @@
         };
 
         window.commitPreSurvey = () => {
-            sessionData.pre = { freq: document.querySelector('input[name="q1"]:checked').value, skill: document.querySelector('input[name="q2"]:checked').value };
+            sessionData.pre = {
+                freq: document.querySelector('input[name="q1"]:checked').value,
+                skill: document.querySelector('input[name="q2"]:checked').value,
+                exp_rule: document.querySelector('input[name="q3_rule"]:checked').value,
+                exp_graphic: document.querySelector('input[name="q3_graphic"]:checked').value,
+                exp_effect: document.querySelector('input[name="q3_effect"]:checked').value,
+                exp_sound: document.querySelector('input[name="q3_sound"]:checked').value
+            };
             showInter();
         };
 
@@ -331,9 +343,12 @@
             const mode = modes[modeId];
             document.getElementById('main-body').className = `${mode.theme} flex items-center justify-center p-4`;
             document.getElementById('mode-badge').textContent = `MODE ${modeId}`;
+            document.getElementById('score-val').textContent = "0";
+            document.getElementById('timer-val').textContent = "30s";
             document.querySelectorAll('.mole').forEach(m => {
                 m.className = `mole ${mode.juicy ? 'juicy-move' : 'standard-move'}`;
-                m.innerHTML = ''; m.appendChild(document.getElementById('mole-template').content.cloneNode(true));
+                m.classList.remove('up'); m.innerHTML = '';
+                m.appendChild(document.getElementById('mole-template').content.cloneNode(true));
             });
             if (modeId === 4) {
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
@@ -345,8 +360,9 @@
 
         async function gameLoop() {
             while (isPlaying) {
+                const count = Math.floor(Math.random() * 2) + 1;
                 const molesArr = Array.from(document.querySelectorAll('.mole:not(.up)'));
-                molesArr.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random()*3)+1).forEach((mole, i) => {
+                molesArr.sort(() => 0.5 - Math.random()).slice(0, count).forEach((mole, i) => {
                     setTimeout(() => { if (isPlaying) peep(mole); }, i * 200);
                 });
                 await new Promise(r => setTimeout(r, 850 + Math.random() * 400));
@@ -391,7 +407,7 @@
             const q6label = document.getElementById('q6-label');
             q6label.textContent = isA ? "Q7. 要素の追加によりおもしろさは増加しましたか？ (1〜5)" : "Q7. 要素の削減によりおもしろさは減少しましたか？ (1〜5)";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
-            const pairs = isA ? [{f:1,t:2,l:"農場グラフィック"},{f:2,t:3,l:"強演出"},{f:3,t:4,l:"サウンド全般"}] : [{f:4,t:3,l:"サウンド削除"},{f:3,t:2,l:"演出削除"},{f:2,t:1,l:"グラフィック削除"}];
+            const pairs = isA ? [{f:1,t:2,l:"農場グラフィック"},{f:2,t:3,l:"強視覚演出"},{f:3,t:4,l:"サウンド全般"}] : [{f:4,t:3,l:"サウンド削除"},{f:3,t:2,l:"視覚演出削除"},{f:2,t:1,l:"グラフィック削除"}];
             pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変", "　", "影響", "　",isA?"増加":"減少"])}</div>`; });
             switchScreen('post');
         };
@@ -400,6 +416,7 @@
             const btn = document.getElementById('final-submit-btn');
             const uniqueRanks = new Set([document.getElementById('r1').value, document.getElementById('r2').value, document.getElementById('r3').value, document.getElementById('r4').value].filter(r => r !== ""));
             if (uniqueRanks.size < 4) { document.getElementById('q5-error').classList.remove('hidden'); document.getElementById('r1').scrollIntoView({ behavior: 'smooth' }); return; }
+            if (!db) { alert("DB接続エラー。apiKeyを確認してください。"); return; }
             btn.disabled = true; btn.textContent = "データを送信中...";
             try {
                 let confirmedUser = user || auth.currentUser || await initAuth();
@@ -434,24 +451,23 @@
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.frequency.setValueAtTime(isBonus ? 950 : 440, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(isBonus ? 2400 : 100, audioCtx.currentTime + 0.15);
+            osc.frequency.exponentialRampToValueAtTime(isBonus ? 2400 : 150, audioCtx.currentTime + 0.15);
             gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
         function spawnParticles(x, y, isBonus) {
-            const count = isBonus ? 100 : 40; const colors = isBonus ? ['#fbbf24', '#ef4444', '#ffffff'] : ['#3b82f6', '#ffffff'];
+            const count = isBonus ? 40 : 15; const colors = isBonus ? ['#fbbf24', '#ef4444', '#ffffff'] : ['#3b82f6', '#ffffff'];
             for (let i = 0; i < count; i++) {
                 const p = document.createElement('div'); p.className = 'particle';
-                const size = Math.random() * (isBonus ? 30 : 18) + 8;
+                const size = Math.random() * (isBonus ? 20 : 10) + 5;
                 p.style.width = p.style.height = `${size}px`; p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
                 p.style.left = `${x}px`; p.style.top = `${y}px`;
-                const angle = Math.random() * Math.PI * 2, velocity = Math.random() * (isBonus ? 1000 : 500) + 200;
+                const angle = Math.random() * Math.PI * 2, velocity = Math.random() * (isBonus ? 600 : 300) + 100;
                 p.style.setProperty('--dx', `${Math.cos(angle) * velocity}px`); p.style.setProperty('--dy', `${Math.sin(angle) * velocity}px`);
-                p.style.setProperty('--duration', `${Math.random() * 0.8 + 0.5}s`);
-                document.body.appendChild(p); setTimeout(() => p.remove(), 1500);
+                p.style.setProperty('--duration', `${Math.random() * 0.6 + 0.4}s`);
+                document.body.appendChild(p); setTimeout(() => p.remove(), 1000);
             }
-            if (isBonus) { document.getElementById('flash-overlay').classList.add('flash-active'); setTimeout(() => { document.getElementById('flash-overlay').classList.remove('flash-active'); }, 300); }
         }
 
         function showJuicyPopup(x, y, pts) { const p = document.createElement('div'); p.className = `score-popup-juicy`; p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 800); }

@@ -252,25 +252,36 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Configs ---
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // --- Firebase Configs (Robust initialization for external envs) ---
+        let db, auth;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mole-research-tab-v9';
         const RESEARCH_COLLECTION = "mole_research_responses_final";
         const GAME_TYPE_TAG = "mole_v9_final";
 
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            }
+        } catch (e) {
+            console.error("Firebase Initialization Error:", e);
+        }
+
         let user;
         const initAuth = async () => {
+            if (!auth) return;
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else { await signInAnonymously(auth); }
             } catch (e) { console.warn("Auth Fail", e); }
         };
-        onAuthStateChanged(auth, u => { user = u; });
-        initAuth();
+        if (auth) {
+            onAuthStateChanged(auth, u => { user = u; });
+            initAuth();
+        }
 
         // --- Audio ---
         let audioCtx;
@@ -438,7 +449,7 @@
         window.finalSubmit = async () => {
             const btn = document.getElementById('final-submit-btn');
             btn.disabled = true; btn.textContent = "データを送信中...";
-            if (!user) await initAuth();
+            if (auth && !user) await initAuth();
             const post = { q4:{}, q5:[], q6:{}, q7:{}, free: document.getElementById('free-ans').value };
             [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`)?.value || "3");
             post.q5 = [1,2,3,4].map(i => document.getElementById(`r${i}`).value);
@@ -447,7 +458,9 @@
             sessionData.post = post; sessionData.timestamp = serverTimestamp(); sessionData.route = userRoute; sessionData.userId = user ? user.uid : "unknown-" + Date.now();
             sessionData.game_type = GAME_TYPE_TAG;
             try {
-                if (db) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), sessionData);
+                if (db) {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), sessionData);
+                }
                 switchScreen('end');
             } catch (err) { alert("送信エラー。再試行してください。"); btn.disabled = false; btn.textContent = "再送信"; }
         };
@@ -456,10 +469,16 @@
             if (!this.classList.contains('up')) return;
             const mId = routeSteps[currentStepIndex] || 1; const mode = modes[mId]; const isBonus = this.dataset.type === 'bonus';
             score += isBonus ? 10 : 1; this.classList.remove('up'); document.getElementById('score-val').textContent = score;
-            let x = e.clientX || (e.touches && e.touches[0].clientX); let y = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            // Extract coordinates from mouse or touch
+            const clientX = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
+            const clientY = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
+
             if (mode.vib && navigator.vibrate) navigator.vibrate(isBonus ? [180, 70, 180] : 60);
             if (mode.sound) { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); playTone(isBonus); }
-            if (mode.juicy) { spawnParticles(x, y, isBonus); showJuicyPopup(x, y, isBonus ? 10 : 1); } else { showSoberPopup(x, y, isBonus ? 10 : 1); }
+            if (mode.juicy) { spawnParticles(clientX, clientY, isBonus); showJuicyPopup(clientX, clientY, isBonus ? 10 : 1); } else { showSoberPopup(clientX, clientY, isBonus ? 10 : 1); }
+            
+            if (e.type.startsWith('touch')) e.preventDefault();
         }
 
         function playTone(isBonus) {
@@ -497,7 +516,7 @@
         window.openConfirmModal = () => screens.modal.classList.remove('hidden');
         window.closeConfirmModal = () => screens.modal.classList.add('hidden');
         window.executeDataReset = async () => {
-            if (!user) await initAuth();
+            if (auth && !user) await initAuth();
             const btn = document.querySelector('#modal-confirm button');
             btn.textContent = "削除中..."; btn.disabled = true;
             try {
@@ -544,9 +563,9 @@
             } catch (err) { console.error(err); alert("エラー発生"); btn.textContent = originalText; }
         };
 
-        // --- KEY HANDLER ---
+        // --- KEY HANDLER (More robust event detection) ---
         window.addEventListener('keydown', e => {
-            const key = e.key.toUpperCase();
+            const key = e.key ? e.key.toUpperCase() : null;
             const code = e.code;
             
             if (e.shiftKey) {
@@ -566,16 +585,17 @@
                     openConfirmModal();
                 }
             }
-        }, true); // Use capture phase to ensure it hits before anything else
+        }, true);
 
         window.debugJump = (mId) => {
             screens.debug.classList.add('hidden'); isPlaying = false; clearInterval(timerId); bgmAudio.pause(); currentStepIndex = 999;
             setupGame(mId); switchScreen('game');
         };
 
+        // Robust event binding
         document.querySelectorAll('.mole').forEach(m => {
             m.addEventListener('mousedown', whack);
-            m.addEventListener('touchstart', (e) => { whack.call(m, e.touches[0]); e.preventDefault(); }, { passive: false });
+            m.addEventListener('touchstart', whack, { passive: false });
         });
         document.getElementById('game-board').addEventListener('touchmove', e => e.preventDefault(), { passive: false });
     </script>

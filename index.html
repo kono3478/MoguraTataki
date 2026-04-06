@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたき研究調査システム v9.19</title>
+    <title>モグラたたき研究調査システム v9.20</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -77,7 +77,7 @@
             30% { transform: translate(-50%, -100px) scale(2); opacity: 1; }
             100% { transform: translate(-50%, -250px) scale(3); opacity: 0; } 
         }
-        .score-popup-juicy { position: fixed; pointer-events: none; font-weight: 900; font-size: 4rem; z-index: 1000; animation: score-pop-juicy 0.7s ease-out forwards; text-shadow: 4px 4px 0px white; color: #1e293b; }
+        .score-popup-juicy { position: fixed; pointer-events: none; font-weight: 900; font-size: 4rem; z-index: 1000; animation: score-pop-juicy 0.7s ease-out forwards; text-shadow: 4px 4px 0px white, -2px -2px 0px white; color: #1e293b; }
         
         @keyframes score-pop-sober { 
             0% { opacity: 1; transform: translate(-50%, 0); } 
@@ -125,7 +125,7 @@
     </div>
 
     <div id="debug-menu" class="hidden text-center">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.19</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.20</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
@@ -138,7 +138,7 @@
 
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center leading-tight">モグラたたき<br>研究調査</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">Research System v9.19 FINAL</p>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">Research System v9.20 FINAL</p>
         <div class="mb-12 text-left">
             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の数字（ID）を入力してください</label>
             <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
@@ -278,14 +278,20 @@
         const initAuth = async () => {
             if (!auth) return null;
             try {
-                let userCredential = (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) 
-                    ? await signInWithCustomToken(auth, __initial_auth_token) 
-                    : await signInAnonymously(auth);
+                let userCredential;
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+                } else { 
+                    userCredential = await signInAnonymously(auth); 
+                }
                 return userCredential.user;
-            } catch (e) { console.error("Auth failed:", e); return null; }
+            } catch (e) { 
+                console.error("Auth failed error details:", e); 
+                throw e; // エラーを投げて上位で詳細を表示させる
+            }
         };
 
-        if (auth) { onAuthStateChanged(auth, u => { user = u; }); initAuth(); }
+        if (auth) { onAuthStateChanged(auth, u => { user = u; }); initAuth().catch(e => console.error("Background auth failed")); }
 
         // --- Audio ---
         let audioCtx;
@@ -384,7 +390,7 @@
             });
             if (modeId === 4) {
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                setTimeout(() => { if(isPlaying) bgmAudio.play().catch(e => console.warn("BGM Defer")); }, 150);
+                setTimeout(() => { if(isPlaying && currentStepIndex !== 999) bgmAudio.play().catch(e => console.warn("BGM Play Defer")); }, 150);
             }
             gameLoop();
             timerId = setInterval(() => {
@@ -460,19 +466,43 @@
             const uniqueRanks = new Set([r1, r2, r3, r4].filter(r => r !== ""));
             if (uniqueRanks.size < 4) { errorArea.classList.remove('hidden'); document.getElementById('r1').scrollIntoView({ behavior: 'smooth' }); return; }
             else { errorArea.classList.add('hidden'); }
-            if (!db) { alert("DB接続エラー。"); return; }
+
+            if (!db) { alert("DB接続エラー。Firebase設定を確認してください。"); return; }
 
             btn.disabled = true; btn.textContent = "データを送信中...";
+            
             try {
-                let confirmedUser = user || auth.currentUser || await initAuth();
-                if (!confirmedUser) throw new Error("Auth failed");
+                // 送信直前にログイン状態を再確認。失敗した場合はエラー詳細をalert
+                let confirmedUser;
+                try {
+                    confirmedUser = user || auth.currentUser || await initAuth();
+                } catch (authErr) {
+                    throw new Error("認証失敗: " + (authErr.message || "詳細不明") + "\nFirebaseコンソールで匿名ログインが有効か、承認済みドメインにドメインが登録されているか確認してください。");
+                }
+
+                if (!confirmedUser) throw new Error("ユーザー認証が取得できませんでした。");
+                
                 const post = { q4:{}, q5:[r1, r2, r3, r4], q6:{}, q7:{}, free: document.getElementById('free-ans').value };
                 [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`).value);
                 [1,2,3,4].forEach(m => { const el = document.querySelector(`input[name="q6_${m}"]:checked`); if(el) post.q6[m] = el.value; });
                 ["rule", "graphic", "effect", "sound"].forEach(k => post.q7[k] = document.querySelector(`input[name="q7_${k}"]:checked`).value);
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), { ...sessionData, post, timestamp: serverTimestamp(), route: userRoute, userId: confirmedUser.uid, game_type: GAME_TYPE_TAG }); 
+                
+                const finalData = {
+                    ...sessionData,
+                    post: post,
+                    timestamp: serverTimestamp(),
+                    route: userRoute,
+                    userId: confirmedUser.uid,
+                    game_type: GAME_TYPE_TAG
+                };
+                
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), finalData); 
                 switchScreen('end'); 
-            } catch (err) { alert("送信に失敗しました: " + err.message); btn.disabled = false; btn.textContent = "再送信"; }
+            } catch (err) { 
+                console.error("Submit error details:", err);
+                alert("送信に失敗しました。\n内容: " + err.message); 
+                btn.disabled = false; btn.textContent = "再送信"; 
+            }
         };
 
         function whack(e) {
@@ -507,7 +537,7 @@
             for (let i = 0; i < count; i++) {
                 const p = document.createElement('div'); p.className = 'particle';
                 const size = Math.random() * (isBonus ? 30 : 18) + 8;
-                p.style.width = p.style.height = `${size}px`; p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                p.style.width = `${size}px`; p.style.height = `${size}px`; p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
                 p.style.left = `${x}px`; p.style.top = `${y}px`;
                 const angle = Math.random() * Math.PI * 2, velocity = Math.random() * (isBonus ? 1000 : 500) + 200;
                 p.style.setProperty('--dx', `${Math.cos(angle) * velocity}px`); p.style.setProperty('--dy', `${Math.sin(angle) * velocity}px`);
@@ -528,7 +558,7 @@
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION));
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION, d.id))));
                 alert("削除完了"); location.reload();
-            } catch (e) { alert("削除失敗"); btn.disabled = false; btn.textContent = "はい、削除します"; }
+            } catch (e) { alert("削除失敗: " + e.message); btn.disabled = false; btn.textContent = "はい、削除します"; }
         };
 
         window.triggerCSVDownload = async () => {
@@ -547,7 +577,7 @@
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_results_${new Date().toISOString().slice(0,10)}.csv`;
                 document.body.appendChild(link); link.click(); document.body.removeChild(link); btn.textContent = originalText;
-            } catch (err) { console.error(err); alert("エラー発生"); btn.textContent = originalText; }
+            } catch (err) { console.error(err); alert("エラー発生: " + err.message); btn.textContent = originalText; }
         };
 
         window.addEventListener('keydown', e => {

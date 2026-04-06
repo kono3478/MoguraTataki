@@ -164,7 +164,7 @@
         <div class="survey-card"><p class="font-bold mb-8 text-lg text-slate-700">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
         <div class="survey-card"><p class="font-bold mb-8 text-lg text-slate-700">Q2. あなたはゲームが得意ですか？</p><div id="likert-q2"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-8 text-lg text-slate-700">Q3. 次の各要素はゲームのおもしろさにどの程度影響すると考えますか (1〜5)</p>
+            <p class="font-bold mb-8 text-lg text-slate-700">Q3. 次の各要素はゲームのおもしろさにどの程度影響すると考えますか</p>
             <div class="space-y-16">
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● ルール</p><div id="likert-q3-rule"></div></div>
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● グラフィック</p><div id="likert-q3-graphic"></div></div>
@@ -222,7 +222,7 @@
             <p id="q5-error" class="text-red-500 font-black mt-6 hidden text-center bg-red-50 p-4 rounded-2xl border-2 border-red-100">※順位をすべて重複なく選択してください</p>
         </div>
         
-        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと思いますか (1〜5)</p><div id="q7-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと思いますか</p><div id="q7-container" class="space-y-16"></div></div>
         <div class="survey-card"><p id="q6-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p><div id="q6-container" class="space-y-16"></div></div>
         <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
         <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
@@ -320,10 +320,10 @@
         };
 
         const modes = {
-            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルール設定のみ (地味)" },
-            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "農場テーマ (地味)" },
-            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "強エフェクト (派手)" },
-            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "フル演出・BGM (派手)" }
+            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルールのみ" },
+            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "グラフィック" },
+            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "エフェクト" },
+            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "サウンド" }
         };
 
         const config = { interval: 850, stay: 1000, bonus: 0.25 };
@@ -352,7 +352,7 @@
             routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
             ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
                 const container = document.getElementById(`likert-${id.replace('_','-')}`);
-                if (container) container.innerHTML = createLikertHTML(id, id.includes('q3') ? ["影響なし", "　", "普通", "　", "大いに影響"] : (id==='q1'?["遊ばない","　","普通","　","良く遊ぶ"]:["苦手","　","普通","　","得意"]));
+                if (container) container.innerHTML = createLikertHTML(id, id.includes('q3') ? ["影響なし", "　", "　", "　", "大いに影響"] : (id==='q1'?["遊ばない","　","普通","　","良く遊ぶ"]:["苦手","　","普通","　","得意"]));
             });
             switchScreen('pre');
         };
@@ -460,13 +460,13 @@
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
                 const l = {rule:"ルール設計(得点など)", graphic:"見た目の良さ", effect:"演出(視覚的振動)", sound:"サウンド(音)"}[k];
-                q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>${createLikertHTML(`q7_${k}`, ["影響なし","　","影響","　","大いに影響"])}</div>`;
+                q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>${createLikertHTML(`q7_${k}`, ["影響なし","　","　","　","大いに影響"])}</div>`;
             });
             const q6label = document.getElementById('q6-label');
             q6label.textContent = isA ? "Q7. 要素の追加によりおもしろさは増加しましたか？ (1〜5)" : "Q7. 要素の削減によりおもしろさは減少しましたか？ (1〜5)";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
-            const pairs = isA ? [{f:1,t:2,l:"農場グラフィック"},{f:2,t:3,l:"強視覚演出"},{f:3,t:4,l:"サウンド全般"}] : [{f:4,t:3,l:"サウンド削除"},{f:3,t:2,l:"視覚演出削除"},{f:2,t:1,l:"グラフィック削除"}];
-            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変","　","影響","　",isA?"増加":"減少"])}</div>`; });
+            const pairs = isA ? [{f:1,t:2,l:"グラフィック"},{f:2,t:3,l:"エフェクト"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド削除"},{f:3,t:2,l:"エフェクト削除"},{f:2,t:1,l:"グラフィック削除"}];
+            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変","　","　","　",isA?"増加":"減少"])}</div>`; });
             switchScreen('post');
         };
 

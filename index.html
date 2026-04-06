@@ -209,7 +209,7 @@
     <!-- 6. Post Survey -->
     <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1">
         <h2 class="text-4xl font-black mb-12 text-center text-slate-900">事後アンケート</h2>
-        <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 4つのモードのおもしろさをそれぞれ評価してください（1～5）</p><div id="q4-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 4つのモードのおもしろさをそれぞれ評価してください</p><div id="q4-container" class="space-y-16"></div></div>
         
         <div class="survey-card">
             <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください (重複不可)</p>
@@ -459,7 +459,7 @@
             const isA = userRoute === 'A';
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
-                const l = {rule:"ルール設計(得点など)", graphic:"見た目の良さ", effect:"演出(視覚的振動)", sound:"サウンド(音)"}[k];
+                const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
                 q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>${createLikertHTML(`q7_${k}`, ["影響なし","　","　","　","大いに影響"])}</div>`;
             });
             const q6label = document.getElementById('q6-label');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたき研究調査システム v9.13</title>
+    <title>モグラたたき研究調査システム v9.16</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -68,7 +68,6 @@
         }
         .shake-active { animation: strong-shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
 
-        /* ヒット時の視覚的な振動効果（周辺発光） */
         @keyframes impact-glow-normal { 0% { box-shadow: inset 0 0 50px rgba(59, 130, 246, 0.8); } 100% { box-shadow: inset 0 0 0px rgba(59, 130, 246, 0); } }
         @keyframes impact-glow-bonus { 0% { box-shadow: inset 0 0 100px rgba(239, 68, 68, 1); } 100% { box-shadow: inset 0 0 0px rgba(239, 68, 68, 0); } }
         .impact-glow-normal { animation: impact-glow-normal 0.3s ease-out forwards; }
@@ -89,7 +88,6 @@
             0% { opacity: 1; transform: translate(-50%, 0); } 
             100% { opacity: 0; transform: translate(-50%, -20px); } 
         }
-        /* モード1,2用のスコア表示：白、2.4rem */
         .score-popup-sober { position: fixed; pointer-events: none; font-weight: bold; font-size: 2.4rem; z-index: 1000; animation: score-pop-sober 0.4s ease-out forwards; color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
 
         .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 900; animation: particle-fly var(--duration) cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
@@ -106,8 +104,8 @@
         .likert-num { font-size: 1.5rem; font-weight: 900; color: #0f172a; }
         
         .input-field { width: 100%; padding: 1.5rem; border: 4px solid #e2e8f0; border-radius: 2rem; font-size: 2.2rem; font-weight: 900; text-align: center; color: #0f172a; background: white; text-transform: uppercase; }
+        .input-field:focus { border-color: #3b82f6; outline: none; }
         
-        /* --- Modal --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         .modal-content { background: white; padding: 2.5rem; border-radius: 2rem; max-width: 400px; width: 100%; text-align: center; }
 
@@ -119,10 +117,9 @@
 
     <div id="flash-overlay" class="flash-overlay"></div>
 
-    <!-- Confirm Modal -->
     <div id="modal-confirm" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3 class="text-2xl font-black mb-4">データの全削除</h3>
+            <h3 class="text-2xl font-black mb-4 text-slate-900">データの全削除</h3>
             <p class="text-slate-500 mb-8 font-bold">Firestore上の全回答データを削除しますか？この操作は取り消せません。</p>
             <div class="flex flex-col gap-3">
                 <button onclick="executeDataReset()" class="bg-red-500 text-white font-black py-4 rounded-xl shadow-lg">はい、削除します</button>
@@ -131,41 +128,36 @@
         </div>
     </div>
 
-    <!-- Debug Menu -->
     <div id="debug-menu" class="hidden">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase text-center">Admin Console v9.13</h2>
-        <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE (Sober)</div>
-        <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC (Sober)</div>
-        <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT (Juicy)</div>
-        <div onclick="debugJump(4)" class="debug-row">MODE 4: FULL (Juicy)</div>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase text-center">Admin Console v9.16</h2>
+        <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
+        <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
+        <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
+        <div onclick="debugJump(4)" class="debug-row">MODE 4: FULL</div>
         <div onclick="location.reload()" class="debug-row border-red-900 text-red-500 mt-8">TITLE RESET</div>
         <div id="btn-csv-debug" onclick="triggerCSVDownload()" class="debug-row border-blue-900 text-blue-400 mt-2">CSV DOWNLOAD (Shift+D)</div>
         <div onclick="openConfirmModal()" class="debug-row border-orange-900 text-orange-400 mt-2">DATA RESET (Shift+R)</div>
         <p class="mt-8 text-slate-500 font-bold text-sm text-center leading-relaxed">Shift+M: Menu / Shift+D: CSV / Shift+R: Reset</p>
     </div>
 
-    <!-- 1. Start Screen -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
-        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter">モグラたたき研究</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">Research System v9.13 FINAL</p>
-        
+        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center">モグラたたき研究</h1>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">Research System v9.16 FINAL</p>
         <div class="mb-12 text-left">
-            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3">3桁の任意の数字を入力してください（例：123）</label>
+            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の数字を入力してください（例：123）</label>
             <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
         </div>
-
         <button onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">
             調査を開始する
         </button>
     </div>
 
-    <!-- 2. Pre-Survey -->
     <div id="screen-pre-survey" class="screen hidden max-h-[95vh] overflow-y-auto px-1">
         <h2 class="text-3xl font-black mb-10 text-center text-slate-900">事前アンケート</h2>
         <div class="survey-card"><p class="font-bold mb-8 text-lg text-slate-700">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
         <div class="survey-card"><p class="font-bold mb-8 text-lg text-slate-700">Q2. あなたはゲームが得意ですか？</p><div id="likert-q2"></div></div>
         <div class="survey-card">
-            <p class="font-bold mb-8 text-lg text-slate-700">Q3. 次の各要素はゲームのおもしろさにどの程度影響すると考えますか (1〜5)</p>
+            <p class="font-bold mb-8 text-lg text-slate-700 text-center">Q3. 各要素はおもしろさにどの程度影響すると考えますか (1〜5)</p>
             <div class="space-y-16">
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● ルール</p><div id="likert-q3-rule"></div></div>
                 <div><p class="text-sm font-black text-slate-500 mb-4 ml-2 uppercase tracking-widest">● グラフィック</p><div id="likert-q3-graphic"></div></div>
@@ -176,18 +168,16 @@
         <button onclick="commitPreSurvey()" class="w-full bg-slate-900 text-white font-black py-8 rounded-[2.5rem] mb-20 shadow-2xl text-2xl active:scale-95 transition">回答を保存して開始</button>
     </div>
 
-    <!-- 3. Interval Screen -->
     <div id="screen-inter" class="screen hidden bg-white p-12 rounded-[4.5rem] shadow-2xl text-center border border-slate-100">
-        <h2 id="inter-title" class="text-4xl font-black mb-6">準備</h2>
+        <h2 id="inter-title" class="text-4xl font-black mb-6 text-slate-900">準備</h2>
         <p id="inter-desc" class="text-slate-500 mb-12 font-bold leading-relaxed text-2xl"></p>
         <button onclick="launchMode()" class="w-full bg-blue-600 text-white font-black py-8 px-6 rounded-[3.5rem] shadow-2xl active:scale-95 transition text-3xl">START</button>
     </div>
 
-    <!-- 4. Game Screen -->
     <div id="screen-game" class="hidden w-full max-w-sm flex flex-col items-center">
         <div id="impact-layer" class="w-full h-full fixed inset-0 pointer-events-none z-40"></div>
         <div class="w-full flex justify-between items-center mb-8 bg-white/95 p-6 rounded-[3rem] shadow-xl border-4 border-white">
-            <div class="text-left"><p class="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Score</p><p id="score-val" class="text-5xl font-black text-slate-900">0</p></div>
+            <div class="text-left text-slate-900"><p class="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Score</p><p id="score-val" class="text-5xl font-black leading-none">0</p></div>
             <p id="timer-val" class="text-6xl font-black text-red-500 tabular-nums">30s</p>
             <div class="text-right"><span id="mode-badge" class="text-[10px] font-black bg-slate-950 px-4 py-2 rounded-2xl text-white tracking-widest uppercase shadow-md">MODE 1</span></div>
         </div>
@@ -198,20 +188,17 @@
         </div>
     </div>
 
-    <!-- 5. Intermediate Results Screen -->
     <div id="screen-game-results" class="screen hidden bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
-        <h2 class="text-3xl font-black mb-8 text-slate-900 tracking-tighter">プレイ結果まとめ</h2>
+        <h2 class="text-3xl font-black mb-8 text-slate-900 tracking-tighter text-center">プレイ結果まとめ</h2>
         <div id="results-summary-list" class="space-y-4 mb-10 text-left"></div>
         <button onclick="showPostSurvey()" class="w-full bg-slate-900 text-white font-bold py-6 rounded-2xl text-xl shadow-lg transition active:scale-95">
             アンケートに進む
         </button>
     </div>
 
-    <!-- 6. Post Survey -->
-    <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1">
-        <h2 class="text-4xl font-black mb-12 text-center text-slate-900">事後アンケート</h2>
-        <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 4つのモードのおもしろさをそれぞれ評価してください（1～5）</p><div id="q4-container" class="space-y-16"></div></div>
-        
+    <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1 text-slate-800">
+        <h2 class="text-4xl font-black mb-12 text-center tracking-tighter text-slate-900">事後アンケート</h2>
+        <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 4つのモードのおもしろさをそれぞれ評価してください</p><div id="q4-container" class="space-y-16"></div></div>
         <div class="survey-card">
             <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください (重複不可)</p>
             <div class="space-y-8">
@@ -222,18 +209,16 @@
             </div>
             <p id="q5-error" class="text-red-500 font-black mt-6 hidden text-center bg-red-50 p-4 rounded-2xl border-2 border-red-100">※順位をすべて重複なく選択してください</p>
         </div>
-        
-        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと思いますか (1〜5)</p><div id="q7-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. ゲームを構成する以下の要素はおもしろさにどの程度影響したと思いますか</p><div id="q7-container" class="space-y-16"></div></div>
         <div class="survey-card"><p id="q6-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p><div id="q6-container" class="space-y-16"></div></div>
-        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
+        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800 text-center">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
         <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
     </div>
 
-    <!-- 7. End Screen -->
-    <div id="screen-end" class="screen hidden bg-white p-12 rounded-[5rem] shadow-2xl text-center">
+    <div id="screen-end" class="screen hidden bg-white p-12 rounded-[5rem] shadow-2xl text-center border border-slate-100">
         <div class="w-40 h-40 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-12 text-8xl font-bold shadow-inner animate-pulse">✓</div>
-        <h2 class="text-5xl font-black mb-8 text-slate-900 tracking-tighter">送信完了</h2>
-        <p class="text-slate-500 mb-16 font-bold leading-relaxed text-2xl text-center">ご協力ありがとうございました。<br>ブラウザを閉じて終了してください。</p>
+        <h2 class="text-5xl font-black mb-8 text-slate-900 tracking-tighter text-center">送信完了</h2>
+        <p class="text-slate-500 mb-16 font-bold leading-relaxed text-2xl text-center text-slate-500">ご協力ありがとうございました。<br>ブラウザを閉じて終了してください。</p>
         <button onclick="location.reload()" class="text-slate-300 font-bold text-xs tracking-[0.8em] underline uppercase">Return to Top</button>
     </div>
 
@@ -245,13 +230,11 @@
                 <rect x="20" y="63" width="60" height="7" rx="3" fill="#f8fafc" />
                 <circle cx="35" cy="78" r="5" fill="black" /><circle cx="65" cy="78" r="5" fill="black" />
                 <circle cx="50" cy="88" r="8" fill="#f472b6" />
-                <line x1="25" y1="88" x2="8" y2="85" stroke="#451a03" stroke-width="2.5" />
-                <line x1="75" y1="88" x2="92" y2="85" stroke="#451a03" stroke-width="2.5" />
+                <line x1="25" y1="88" x2="8" y2="85" stroke="#451a03" stroke-width="2.5" /><line x1="75" y1="88" x2="92" y2="85" stroke="#451a03" stroke-width="2.5" />
             </svg>
         </div>
         <div class="mole-graphic simple-mole"><div class="w-24 h-24 rounded-full bg-slate-950 border-4 border-white shadow-2xl"></div></div>
     </template>
-    
     <template id="bonus-mole-template">
         <div class="mole-graphic farm-mole">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -270,23 +253,36 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Configs ---
+        // --- Firebase 設定エリア ---
         let db, auth;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mole-research-tab-v9';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mole-research-final-v9';
         const RESEARCH_COLLECTION = "mole_research_responses_final";
         const GAME_TYPE_TAG = "mole_v9_final";
 
-        // Firebaseの初期化をより安全に実施
+        // 画像の設定情報を反映済み
+        const manualFirebaseConfig = {
+            apiKey: "AIzaSyD2JgMu1GcVru5nElFw3K0TQx66P4FeOOQ",
+            authDomain: "mogura-a2faa.firebaseapp.com",
+            projectId: "mogura-a2faa",
+            storageBucket: "mogura-a2faa.firebasestorage.app",
+            messagingSenderId: "255213486398",
+            appId: "1:255213486398:web:df14f8b91bc049ed072c6f",
+            measurementId: "G-B1N418TL45"
+        };
+
         try {
+            let config = null;
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
+                config = JSON.parse(__firebase_config);
+            } else {
+                config = manualFirebaseConfig;
+            }
+            if (config) {
+                const app = initializeApp(config);
                 auth = getAuth(app);
                 db = getFirestore(app);
             }
-        } catch (e) {
-            console.error("Firebase Initialization Error:", e);
-        }
+        } catch (e) { console.error("Firebase Init Error", e); }
 
         let user;
         const initAuth = async () => {
@@ -294,25 +290,17 @@
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
-                } else { 
-                    await signInAnonymously(auth); 
-                }
-            } catch (e) { console.warn("Authentication failed:", e); }
+                } else { await signInAnonymously(auth); }
+            } catch (e) { console.warn("Auth Fail", e); }
         };
-        
-        if (auth) {
-            onAuthStateChanged(auth, u => { user = u; });
-            initAuth();
-        }
+        if (auth) { onAuthStateChanged(auth, u => { user = u; }); initAuth(); }
 
-        // --- Audio System ---
         let audioCtx;
         const BGM_URL = "https://raw.githubusercontent.com/kono3478/sozai/main/bgm_koneko.mp3";
         let bgmAudio = new Audio(BGM_URL);
         bgmAudio.loop = true;
         bgmAudio.crossOrigin = "anonymous";
 
-        // --- State ---
         let userRoute = 'A', currentStepIndex = 0, routeSteps = [];
         let sessionData = { studentId: "", scores: {}, pre: {}, post: {} };
         let isPlaying = false, score = 0, timerVal = 30, timerId;
@@ -332,7 +320,7 @@
         const modes = {
             1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルール設定のみ (地味)" },
             2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "農場テーマ (地味)" },
-            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "強エフェクト (派手)" },
+            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "強演出 (派手)" },
             4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "フル演出・BGM (派手)" }
         };
 
@@ -350,23 +338,19 @@
         window.handleStartClick = () => {
             const sidInput = document.getElementById('student-id');
             const sid = sidInput.value.trim().toUpperCase();
-            if (!sid) { alert("3桁の数字（またはID）を入力してください"); return; }
-            
+            if (!sid) { alert("3桁の数字または学籍番号を入力してください"); return; }
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
             bgmAudio.play().then(() => { bgmAudio.pause(); bgmAudio.currentTime = 0; }).catch(() => {});
             bgmAudio.load();
-
             sessionData.studentId = sid;
             const lastDigitStr = sid.replace(/[^0-9]/g, '').slice(-1);
             const lastDigit = lastDigitStr === "" ? 1 : parseInt(lastDigitStr);
             userRoute = (lastDigit % 2 !== 0) ? 'A' : 'B';
             routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
-            
             ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
                 const container = document.getElementById(`likert-${id.replace('_','-')}`);
-                if (container) container.innerHTML = createLikertHTML(id, id.includes('q3') ? ["影響なし", "　", "普通", "　", "大いに影響"] : (id==='q1'?["遊ばない","　","普通","　","良く遊ぶ"]:["苦手","　","普通","　","得意"]));
+                if (container) container.innerHTML = createLikertHTML(id, id.includes('q3') ? ["影響なし", "　", "影響", "　", "大いに影響"] : (id==='q1'?["遊ばない","　","普通","　","良く遊ぶ"]:["苦手","　","普通","　","得意"]));
             });
             switchScreen('pre');
         };
@@ -385,7 +369,7 @@
 
         function showInter() {
             const mId = routeSteps[currentStepIndex];
-            document.getElementById('inter-desc').innerHTML = `次は <b>モード ${mId}</b> です。<br><span class="text-slate-400 text-sm font-black uppercase">(${modes[mId].label})</span><br><br>30秒間のプレイを開始します。`;
+            document.getElementById('inter-desc').innerHTML = `次は <b>モード ${mId}</b> です。<br><span class="text-slate-400 text-sm font-black uppercase text-center">(${modes[mId].label})</span><br><br>30秒間のプレイを開始します。`;
             switchScreen('inter');
         }
 
@@ -406,7 +390,7 @@
             });
             if (modeId === 4) {
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                setTimeout(() => { if(isPlaying && currentStepIndex !== 999) bgmAudio.play().catch(e => console.warn("BGM Play Defer")); }, 150);
+                setTimeout(() => { if(isPlaying && currentStepIndex !== 999) bgmAudio.play().catch(e => console.warn("BGM Start Deferred")); }, 150);
             }
             gameLoop();
             timerId = setInterval(() => {
@@ -452,7 +436,7 @@
             steps.forEach((m, idx) => {
                 container.innerHTML += `
                     <div class="flex justify-between items-center bg-slate-50 p-5 rounded-2xl border-2 border-slate-100 shadow-sm">
-                        <div class="flex flex-col">
+                        <div class="flex flex-col text-left">
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${idx + 1}回目のプレイ</span>
                             <span class="font-black text-slate-800 text-lg">モード ${m}</span>
                         </div>
@@ -466,68 +450,48 @@
         window.showPostSurvey = () => {
             const q4cont = document.getElementById('q4-container'); q4cont.innerHTML = '';
             routeSteps.forEach(m => {
-                q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">モード${m}の面白さ</p>${createLikertHTML(`q4_${m}`, ["つまらない","　","普通","　","おもしろい"])}</div>`;
+                q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100 text-center">
+                    <p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">モード${m}の面白さ</p>
+                    ${createLikertHTML(`q4_${m}`, ["つまらない", "　", "普通", "　", "おもしろい"])}
+                </div>`;
             });
             const selects = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3'), document.getElementById('r4')];
             selects.forEach(s => { s.innerHTML = '<option value="">選択してください</option>'; [1,2,3,4].forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.textContent = `モード ${m} (${modes[m].label.split(' ')[0]})`; s.appendChild(opt); }); });
-            
             const isA = userRoute === 'A';
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
                 const l = {rule:"ルール設計(得点など)", graphic:"見た目の良さ", effect:"演出(視覚的振動)", sound:"サウンド(音)"}[k];
-                q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>${createLikertHTML(`q7_${k}`, ["影響なし","　","影響","　","大いに影響"])}</div>`;
+                q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>${createLikertHTML(`q7_${k}`, ["影響なし", "　", "影響", "　", "大いに影響"])}</div>`;
             });
-
             const q6label = document.getElementById('q6-label');
             q6label.textContent = isA ? "Q7. 要素の追加によりおもしろさは増加しましたか？ (1〜5)" : "Q7. 要素の削減によりおもしろさは減少しましたか？ (1〜5)";
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
             const pairs = isA ? [{f:1,t:2,l:"農場グラフィック"},{f:2,t:3,l:"強視覚演出"},{f:3,t:4,l:"サウンド全般"}] : [{f:4,t:3,l:"サウンド削除"},{f:3,t:2,l:"視覚演出削除"},{f:2,t:1,l:"グラフィック削除"}];
-            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変","　","影響","　",isA?"増加":"減少"])}</div>`; });
+            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">変化: ${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`, ["不変", "　", "影響", "　",isA?"増加":"減少"])}</div>`; });
             switchScreen('post');
         };
 
         window.finalSubmit = async () => {
+            if (!db) { alert("データベース設定が見つかりません。"); return; }
             const btn = document.getElementById('final-submit-btn');
             const errorArea = document.getElementById('q5-error');
-            
             const r1 = document.getElementById('r1').value;
             const r2 = document.getElementById('r2').value;
             const r3 = document.getElementById('r3').value;
             const r4 = document.getElementById('r4').value;
-            
-            // すべて選択され、かつ重複がないかチェック
             const uniqueRanks = new Set([r1, r2, r3, r4].filter(r => r !== ""));
-            if (uniqueRanks.size < 4) { 
-                errorArea.classList.remove('hidden'); 
-                document.getElementById('r1').scrollIntoView({ behavior: 'smooth' }); 
-                return; 
-            } else { 
-                errorArea.classList.add('hidden'); 
-            }
-
-            if (!db) {
-                alert("データベースの設定が見つかりません。外部サーバーで動かす場合は、ソースコード内にFirebaseの設定を手動で追加してください。");
-                return;
-            }
-
+            if (uniqueRanks.size < 4) { errorArea.classList.remove('hidden'); document.getElementById('r1').scrollIntoView({ behavior: 'smooth' }); return; }
+            else { errorArea.classList.add('hidden'); }
             btn.disabled = true; btn.textContent = "データを送信中...";
             if (auth && !user) await initAuth();
-            
             const post = { q4:{}, q5:[r1, r2, r3, r4], q6:{}, q7:{}, free: document.getElementById('free-ans').value };
             [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`)?.value || "3");
             [1,2,3,4].forEach(m => { const el = document.querySelector(`input[name="q6_${m}"]:checked`); if(el) post.q6[m] = el.value; });
             ["rule", "graphic", "effect", "sound"].forEach(k => post.q7[k] = document.querySelector(`input[name="q7_${k}"]:checked`)?.value || "3");
-            
             sessionData.post = post; sessionData.timestamp = serverTimestamp(); sessionData.route = userRoute; sessionData.userId = user ? user.uid : "unknown-" + Date.now();
             sessionData.game_type = GAME_TYPE_TAG;
-            
-            try { 
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), sessionData); 
-                switchScreen('end'); 
-            } catch (err) { 
-                alert("送信エラーが発生しました。"); 
-                btn.disabled = false; btn.textContent = "再送信"; 
-            }
+            try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION), sessionData); switchScreen('end'); }
+            catch (err) { alert("送信エラー"); btn.disabled = false; btn.textContent = "再送信"; }
         };
 
         function whack(e) {
@@ -536,17 +500,12 @@
             score += isBonus ? 10 : 1; this.classList.remove('up'); document.getElementById('score-val').textContent = score;
             const clientX = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
-            
             if (mode.juicy) {
                 document.getElementById('main-body').classList.add('shake-active');
                 const impact = document.getElementById('impact-layer');
                 impact.className = isBonus ? 'impact-glow-bonus' : 'impact-glow-normal';
-                setTimeout(() => { 
-                    document.getElementById('main-body').classList.remove('shake-active'); 
-                    impact.className = '';
-                }, 200);
+                setTimeout(() => { document.getElementById('main-body').classList.remove('shake-active'); impact.className = ''; }, 200);
             }
-
             if (mode.sound) { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); playTone(isBonus); }
             if (mode.juicy) { spawnParticles(clientX, clientY, isBonus); showJuicyPopup(clientX, clientY, isBonus ? 10 : 1); } 
             else { showSoberPopup(clientX, clientY, isBonus ? 10 : 1); }
@@ -574,20 +533,14 @@
                 p.style.setProperty('--duration', `${Math.random() * 0.8 + 0.5}s`);
                 document.body.appendChild(p); setTimeout(() => p.remove(), 1500);
             }
-            if (isBonus) {
-                document.getElementById('flash-overlay').classList.add('flash-active');
-                setTimeout(() => { document.getElementById('flash-overlay').classList.remove('flash-active'); }, 300);
-            }
+            if (isBonus) { document.getElementById('flash-overlay').classList.add('flash-active'); setTimeout(() => { document.getElementById('flash-overlay').classList.remove('flash-active'); }, 300); }
         }
 
         function showJuicyPopup(x, y, pts) { const p = document.createElement('div'); p.className = `score-popup-juicy`; p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 800); }
         function showSoberPopup(x, y, pts) { const p = document.createElement('div'); p.className = `score-popup-sober`; p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 400); }
 
-        window.openConfirmModal = () => screens.modal.classList.remove('hidden');
-        window.closeConfirmModal = () => screens.modal.classList.add('hidden');
-        
         window.executeDataReset = async () => {
-            if (!db) { alert("データベースに接続されていません。"); return; }
+            if (!db) return;
             if (auth && !user) await initAuth();
             const btn = document.querySelector('#modal-confirm button');
             btn.textContent = "削除中..."; btn.disabled = true;
@@ -595,13 +548,13 @@
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION));
                 const deletes = snap.docs.map(d => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION, d.id)));
                 await Promise.all(deletes); alert("削除が完了しました。"); location.reload();
-            } catch (e) { alert("削除失敗。"); btn.textContent = "はい、削除します"; btn.disabled = false; }
+            } catch (e) { alert("削除失敗"); btn.textContent = "はい、削除します"; btn.disabled = false; }
         };
 
         window.triggerCSVDownload = async () => {
             const btn = document.getElementById('btn-csv-debug');
             const originalText = btn.textContent; btn.textContent = "CSV取得中...";
-            if (!db) { alert("データベース未接続です。Canvas外で実行する場合はFirebase設定を手動で追加してください。"); btn.textContent = originalText; return; }
+            if (!db) { alert("データベース未接続"); btn.textContent = originalText; return; }
             try {
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', RESEARCH_COLLECTION));
                 if (snap.empty) { alert("データがありません。"); btn.textContent = originalText; return; }
@@ -627,6 +580,8 @@
         }, true);
 
         window.debugJump = (mId) => { screens.debug.classList.add('hidden'); isPlaying = false; clearInterval(timerId); bgmAudio.pause(); currentStepIndex = 999; setupGame(mId); switchScreen('game'); };
+        window.openConfirmModal = () => screens.modal.classList.remove('hidden');
+        window.closeConfirmModal = () => screens.modal.classList.add('hidden');
 
         document.querySelectorAll('.mole').forEach(m => {
             m.addEventListener('mousedown', whack);

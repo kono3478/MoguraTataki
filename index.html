@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたきアンケート v9.33</title>
+    <title>モグラたたきアンケート v9.34</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -85,7 +85,7 @@
     <div id="modal-confirm" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-2xl font-black mb-4 text-slate-900">データの全削除</h3>
-            <p class="text-slate-500 mb-8 font-bold">全回答データを削除しますか？</p>
+            <p class="text-slate-500 mb-8 font-bold">集計された全回答データを削除しますか？</p>
             <div class="flex flex-col gap-3">
                 <button onclick="executeDataReset()" class="bg-red-500 text-white font-black py-4 rounded-xl shadow-lg">はい、削除します</button>
                 <button onclick="closeConfirmModal()" class="bg-slate-100 text-slate-500 font-black py-4 rounded-xl">キャンセル</button>
@@ -94,19 +94,20 @@
     </div>
 
     <div id="debug-menu" class="hidden text-center">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.33</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.34</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
         <div onclick="debugJump(4)" class="debug-row">MODE 4: FULL</div>
         <div onclick="location.reload()" class="debug-row border-red-900 text-red-500 mt-8">TITLE RESET</div>
-        <div id="btn-csv-debug" onclick="triggerCSVDownload()" class="debug-row border-blue-900 text-blue-400 mt-2">CSV DOWNLOAD (Shift+D)</div>
+        <div onclick="triggerCSVDownload()" class="debug-row border-blue-900 text-blue-400 mt-2">CSV DOWNLOAD (Shift+D)</div>
         <div onclick="openConfirmModal()" class="debug-row border-orange-900 text-orange-400 mt-2">DATA RESET (Shift+R)</div>
+        <p class="mt-8 text-slate-500 font-bold text-sm">Shift+M: Menu / Shift+D: CSV / Shift+R: Reset</p>
     </div>
 
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter leading-tight">モグラたたき<br>アンケート</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.33 (Ready)</p>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.34 (Ready)</p>
         <div class="mb-12 text-left">
             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の3桁の半角数字を入力してください</label>
             <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
@@ -165,10 +166,10 @@
         <div class="survey-card">
             <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください (重複不可)</p>
             <div class="space-y-8">
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-yellow-400 text-white rounded-2xl font-black text-xl">1</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-300 text-white rounded-2xl font-black text-xl">2</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-orange-300 text-white rounded-2xl font-black text-xl">3</span><select id="r3" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-400 rounded-2xl font-black text-xl">4</span><select id="r4" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-yellow-400 text-white rounded-2xl font-black text-xl shadow-sm">1</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-300 text-white rounded-2xl font-black text-xl shadow-sm">2</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-orange-300 text-white rounded-2xl font-black text-xl shadow-sm">3</span><select id="r3" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-400 rounded-2xl font-black text-xl shadow-sm">4</span><select id="r4" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
             </div>
             <p id="q5-error" class="text-red-500 font-black mt-6 hidden text-center bg-red-50 p-4 rounded-2xl border-2 border-red-100">※順位をすべて重複なく選択してください</p>
         </div>
@@ -189,7 +190,7 @@
     </div>
 
     <div id="screen-end" class="screen hidden bg-white p-12 rounded-[5rem] shadow-2xl text-center border border-slate-100">
-        <div class="w-40 h-40 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-12 text-8xl font-bold shadow-inner">✓</div>
+        <div class="w-40 h-40 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-12 text-8xl font-bold shadow-inner animate-pulse">✓</div>
         <h2 class="text-5xl font-black mb-8 text-slate-900 tracking-tighter">送信完了</h2>
         <p class="text-slate-500 mb-16 font-bold leading-relaxed text-2xl">ご協力ありがとうございました。<br>ブラウザを閉じて終了してください。</p>
         <button onclick="location.reload()" class="text-slate-300 font-bold text-xs tracking-[0.8em] underline uppercase">Return to Top</button>
@@ -412,7 +413,7 @@
                 }); 
             });
             
-            // Q6: Element Influence (Fixed Mapping)
+            // Q6 (Influence of elements)
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
                 const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
@@ -422,7 +423,7 @@
                 </div>`;
             });
 
-            // Q7: Transition Evaluation (Fixed Mapping)
+            // Q7 (Change evaluation)
             const isA = userRoute === 'A';
             const q7label = document.getElementById('q7-label');
             q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
@@ -451,28 +452,15 @@
             try {
                 const confirmedUser = user || await signInAnonymously(auth);
                 const isA = userRoute === 'A';
-                
-                const post = { 
-                    q4: {}, 
-                    q5: rankInputs, 
-                    q6: {}, 
-                    q7: {}, 
-                    free: document.getElementById('free-ans').value 
-                };
+                const post = { q4: {}, q5: rankInputs, q6: {}, q7: {}, free: document.getElementById('free-ans').value };
 
-                // Data Collection Fix
                 [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`).value);
                 ["rule", "graphic", "effect", "sound"].forEach(k => post.q6[k] = document.querySelector(`input[name="q6_${k}"]:checked`).value);
                 const steps = isA ? [1,2,3] : [4,3,2];
                 steps.forEach(s => post.q7[s] = document.querySelector(`input[name="q7_${s}"]:checked`).value);
 
                 await addDoc(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'), { 
-                    ...sessionData, 
-                    post, 
-                    timestamp: serverTimestamp(), 
-                    route: userRoute, 
-                    userId: confirmedUser.uid, 
-                    game_type: "mole_v9_33" 
+                    ...sessionData, post, timestamp: serverTimestamp(), route: userRoute, userId: confirmedUser.uid, game_type: "mole_v9_34" 
                 }); 
                 switchScreen('end'); 
             } catch (err) { 
@@ -483,8 +471,7 @@
         function whack(e) {
             if (!this.classList.contains('up')) return;
             const isBonus = this.dataset.type === 'bonus';
-            const mId = routeSteps[currentStepIndex] || 1; 
-            const mode = modes[mId];
+            const mId = routeSteps[currentStepIndex] || 1; const mode = modes[mId];
             score += isBonus ? 10 : 1; this.classList.remove('up'); document.getElementById('score-val').textContent = score;
             const clientX = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
@@ -531,12 +518,10 @@
         };
 
         window.triggerCSVDownload = async () => {
-            const btn = document.getElementById('btn-csv-debug');
             try {
                 const snap = await getDocs(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'));
                 if (snap.empty) { alert("データなし"); return; }
                 
-                // CSV Header Fix: Add Q5_4, Q6_all, Q7_all
                 let csv = "\uFEFF"; 
                 csv += "学籍番号,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_Rule,Q6_Graph,Q6_Eff,Q6_Snd,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
                 
@@ -549,23 +534,24 @@
                         d.pre?.freq||3, d.pre?.skill||3,
                         d.post?.q4?.["1"]||3, d.post?.q4?.["2"]||3, d.post?.q4?.["3"]||3, d.post?.q4?.["4"]||3,
                         d.post?.q5?.[0]||"", d.post?.q5?.[1]||"", d.post?.q5?.[2]||"", d.post?.q5?.[3]||"",
-                        d.post?.q6?.rule||3, d.post?.q6?.graphic||3, d.post?.q6?.effect||3, d.post?.q6?.sound||3, // Q6 Fix
-                        d.post?.q7?.["1"]||d.post?.q7?.["4"]||3, // Q7 Fix (P1)
-                        d.post?.q7?.["2"]||d.post?.q7?.["3"]||3, // Q7 Fix (P2)
-                        d.post?.q7?.["3"]||d.post?.q7?.["2"]||3, // Q7 Fix (P3)
+                        d.post?.q6?.rule||3, d.post?.q6?.graphic||3, d.post?.q6?.effect||3, d.post?.q6?.sound||3,
+                        d.post?.q7?.["1"]||d.post?.q7?.["4"]||3,
+                        d.post?.q7?.["2"]||d.post?.q7?.["3"]||3,
+                        d.post?.q7?.["3"]||d.post?.q7?.["2"]||3,
                         `"${(d.post?.free||"").replace(/"/g,'""')}"`
                     ];
                     csv += row.join(",") + "\n";
                 });
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_v933_results.csv`;
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_results_v934.csv`;
                 link.click();
-            } catch (err) { alert("CSV取得失敗: " + err.message); }
+            } catch (err) { alert("CSV失敗: " + err.message); }
         };
 
         window.addEventListener('keydown', e => {
             if (e.shiftKey && e.key.toUpperCase() === 'M') screens.debug.classList.toggle('hidden');
             if (e.shiftKey && e.key.toUpperCase() === 'D') triggerCSVDownload();
+            if (e.shiftKey && e.key.toUpperCase() === 'R') openConfirmModal(); // Reset Fix
         }, true);
 
         window.debugJump = (mId) => { screens.debug.classList.add('hidden'); isPlaying = false; clearInterval(timerId); bgmAudio.pause(); currentStepIndex = 999; setupGame(mId); switchScreen('game'); };

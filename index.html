@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたきアンケート</title>
+    <title>モグラたたきアンケート v9.33</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -41,20 +41,16 @@
         .theme-farm .farm-mole { display: block !important; }
         .theme-farm .simple-mole { display: none !important; }
 
-        /* エフェクト：画面の揺れ */
         @keyframes strong-shake { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-10px, 10px); } 20%, 40%, 60%, 80% { transform: translate(10px, -10px); } }
         .shake-active { animation: strong-shake 0.25s cubic-bezier(.36,.07,.19,.97) both; }
 
-        /* フラッシュ演出 */
         @keyframes flash-white { 0% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(255,255,255,0); } }
         .flash-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 5000; display: none; }
         .flash-active { display: block; animation: flash-white 0.3s ease-out forwards; }
 
-        /* 得点表示：ジューシー（モード3,4用） */
         @keyframes juicy-pop { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 30% { transform: translate(-50%, -100px) scale(2); opacity: 1; } 100% { transform: translate(-50%, -250px) scale(3); opacity: 0; } }
         .score-popup-juicy { position: fixed; pointer-events: none; font-weight: 900; font-size: 4rem; z-index: 1000; animation: juicy-pop 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; text-shadow: 4px 4px 0px white; color: #1e293b; }
         
-        /* 得点表示：シンプル（モード1,2用：白、1.5倍サイズ、黒い縁取り） */
         @keyframes sober-pop { 0% { transform: translate(-50%, 0); opacity: 1; } 100% { transform: translate(-50%, -50px); opacity: 0; } }
         .score-popup-sober { 
             position: fixed; 
@@ -66,9 +62,6 @@
             color: #ffffff; 
             text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000;
         }
-
-        .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 900; animation: particle-fly var(--duration) cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
-        @keyframes particle-fly { 0% { transform: translate(0,0) scale(1.5); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
 
         .screen { width: 100%; max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; }
         .hidden { display: none !important; }
@@ -92,7 +85,7 @@
     <div id="modal-confirm" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-2xl font-black mb-4 text-slate-900">データの全削除</h3>
-            <p class="text-slate-500 mb-8 font-bold">集計された全回答データを削除しますか？</p>
+            <p class="text-slate-500 mb-8 font-bold">全回答データを削除しますか？</p>
             <div class="flex flex-col gap-3">
                 <button onclick="executeDataReset()" class="bg-red-500 text-white font-black py-4 rounded-xl shadow-lg">はい、削除します</button>
                 <button onclick="closeConfirmModal()" class="bg-slate-100 text-slate-500 font-black py-4 rounded-xl">キャンセル</button>
@@ -101,7 +94,7 @@
     </div>
 
     <div id="debug-menu" class="hidden text-center">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.32</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.33</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
@@ -109,19 +102,16 @@
         <div onclick="location.reload()" class="debug-row border-red-900 text-red-500 mt-8">TITLE RESET</div>
         <div id="btn-csv-debug" onclick="triggerCSVDownload()" class="debug-row border-blue-900 text-blue-400 mt-2">CSV DOWNLOAD (Shift+D)</div>
         <div onclick="openConfirmModal()" class="debug-row border-orange-900 text-orange-400 mt-2">DATA RESET (Shift+R)</div>
-        <p class="mt-8 text-slate-500 font-bold text-sm">Shift+M: Menu / Shift+D: CSV / Shift+R: Reset</p>
     </div>
 
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
-        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter text-center leading-tight">モグラたたき<br>アンケート</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px] text-center">System v9.32 (Ready)</p>
+        <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter leading-tight">モグラたたき<br>アンケート</h1>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.33 (Ready)</p>
         <div class="mb-12 text-left">
             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の3桁の半角数字を入力してください</label>
             <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
         </div>
-        <button onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">
-            調査を開始する
-        </button>
+        <button onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">調査を開始する</button>
         <p id="auth-status" class="mt-4 text-[10px] text-slate-300 uppercase text-center">Connecting...</p>
     </div>
 
@@ -164,38 +154,47 @@
     <div id="screen-game-results" class="screen hidden bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h2 class="text-3xl font-black mb-8 text-slate-900 tracking-tighter text-center">プレイ結果まとめ</h2>
         <div id="results-summary-list" class="space-y-4 mb-10 text-left"></div>
-        <button onclick="showPostSurvey()" class="w-full bg-slate-900 text-white font-bold py-6 rounded-2xl text-xl shadow-lg transition active:scale-95">
-            アンケートに進む
-        </button>
+        <button onclick="showPostSurvey()" class="w-full bg-slate-900 text-white font-bold py-6 rounded-2xl text-xl shadow-lg transition active:scale-95">アンケートに進む</button>
     </div>
 
     <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1 text-slate-800">
         <h2 class="text-4xl font-black mb-12 text-center tracking-tighter text-slate-900">事後アンケート</h2>
+        
         <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 各モードのおもしろさをそれぞれ評価してください</p><div id="q4-container" class="space-y-16"></div></div>
+        
         <div class="survey-card">
             <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください (重複不可)</p>
             <div class="space-y-8">
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-yellow-400 text-white rounded-2xl font-black text-xl shadow-sm">1</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-300 text-white rounded-2xl font-black text-xl shadow-sm">2</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-orange-300 text-white rounded-2xl font-black text-xl shadow-sm">3</span><select id="r3" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
-                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-400 rounded-2xl font-black text-xl shadow-sm">4</span><select id="r4" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-yellow-400 text-white rounded-2xl font-black text-xl">1</span><select id="r1" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-300 text-white rounded-2xl font-black text-xl">2</span><select id="r2" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-orange-300 text-white rounded-2xl font-black text-xl">3</span><select id="r3" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
+                <div class="flex items-center gap-6"><span class="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-400 rounded-2xl font-black text-xl">4</span><select id="r4" class="flex-1 p-6 bg-slate-100 rounded-[2rem] font-bold border-2 border-slate-200 outline-none"></select></div>
             </div>
-            <p id="q5-error" class="text-red-500 font-black mt-6 hidden text-center bg-red-50 p-4 rounded-2xl border-2 border-red-100 shadow-sm">※順位をすべて重複なく選択してください</p>
+            <p id="q5-error" class="text-red-500 font-black mt-6 hidden text-center bg-red-50 p-4 rounded-2xl border-2 border-red-100">※順位をすべて重複なく選択してください</p>
         </div>
-        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. 以下の要素はゲームのおもしろさにどの程度影響したと思いますか</p><div id="q7-container" class="space-y-16"></div></div>
-        <div class="survey-card"><p id="q6-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p><div id="q6-container" class="space-y-16"></div></div>
-        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800 text-center">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
+
+        <div class="survey-card">
+            <p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. 以下の要素はゲームのおもしろさにどの程度影響したと思いますか</p>
+            <div id="q6-container" class="space-y-16"></div>
+        </div>
+
+        <div class="survey-card">
+            <p id="q7-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p>
+            <div id="q7-container" class="space-y-16"></div>
+        </div>
+
+        <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
+        
         <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
     </div>
 
     <div id="screen-end" class="screen hidden bg-white p-12 rounded-[5rem] shadow-2xl text-center border border-slate-100">
-        <div class="w-40 h-40 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-12 text-8xl font-bold shadow-inner animate-pulse">✓</div>
-        <h2 class="text-5xl font-black mb-8 text-slate-900 tracking-tighter text-center">送信完了</h2>
-        <p class="text-slate-500 mb-16 font-bold leading-relaxed text-2xl text-center">ご協力ありがとうございました。<br>ブラウザを閉じて終了してください。</p>
+        <div class="w-40 h-40 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-12 text-8xl font-bold shadow-inner">✓</div>
+        <h2 class="text-5xl font-black mb-8 text-slate-900 tracking-tighter">送信完了</h2>
+        <p class="text-slate-500 mb-16 font-bold leading-relaxed text-2xl">ご協力ありがとうございました。<br>ブラウザを閉じて終了してください。</p>
         <button onclick="location.reload()" class="text-slate-300 font-bold text-xs tracking-[0.8em] underline uppercase">Return to Top</button>
     </div>
 
-    <!-- Templates -->
     <template id="mole-template">
         <div class="mole-graphic farm-mole">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -250,21 +249,20 @@
                 user = cred.user;
                 document.getElementById('auth-status').innerText = "Connected ✓";
             } catch (error) {
-                console.error("Firebase Auth Error:", error);
-                document.getElementById('auth-status').innerText = "Auth Error: " + error.code;
+                document.getElementById('auth-status').innerText = "Auth Error";
             }
         };
         onAuthStateChanged(auth, (u) => { user = u; });
         startSignIn();
 
-        // --- Audio ---
+        // Audio
         let audioCtx;
         const BGM_URL = "https://raw.githubusercontent.com/kono3478/sozai/main/bgm_koneko.mp3";
         let bgmAudio = new Audio(BGM_URL);
         bgmAudio.loop = true;
         bgmAudio.crossOrigin = "anonymous";
 
-        // --- State ---
+        // State
         let userRoute = 'A', currentStepIndex = 0, routeSteps = [];
         let sessionData = { studentId: "", scores: {}, pre: {}, post: {} };
         let isPlaying = false, score = 0, timerVal = 30, timerId;
@@ -282,10 +280,10 @@
         };
 
         const modes = {
-            1: { theme: 'theme-simple', juicy: false, sound: false, vib: false, label: "ルールのみ" },
-            2: { theme: 'theme-farm',   juicy: false, sound: false, vib: false, label: "グラフィック追加" },
-            3: { theme: 'theme-farm',   juicy: true,  sound: false, vib: true,  label: "演出追加" },
-            4: { theme: 'theme-farm',   juicy: true,  sound: true,  vib: true,  label: "サウンド追加" }
+            1: { theme: 'theme-simple', juicy: false, sound: false, label: "ルールのみ" },
+            2: { theme: 'theme-farm',   juicy: false, sound: false, label: "グラフィック追加" },
+            3: { theme: 'theme-farm',   juicy: true,  sound: false, label: "演出追加" },
+            4: { theme: 'theme-farm',   juicy: true,  sound: true,  label: "サウンド追加" }
         };
 
         function switchScreen(id) {
@@ -307,14 +305,12 @@
             userRoute = (lastDigit % 2 !== 0) ? 'A' : 'B';
             routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
             
-            // Set labels for Q1, Q2, Q3
             ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
-                const container = document.getElementById(`likert-${id.replace('_','-')}`);
+                const container = document.getElementById(`likert-${id.replace(/_/g,'-')}`);
                 if (container) {
-                    let labels;
-                    if (id === "q1") labels = ["ほとんど遊ばない", "　", "　", "　", "良く遊ぶ"];
-                    else if (id === "q2") labels = ["苦手", "　", "　", "　", "得意"];
-                    else labels = ["影響しない", "　", "　", "　", "影響する"];
+                    let labels = ["ほとんど遊ばない", "　", "　", "　", "良く遊ぶ"];
+                    if (id === "q2") labels = ["苦手", "　", "　", "　", "得意"];
+                    else if (id !== "q1") labels = ["影響しない", "　", "　", "　", "影響する"];
                     container.innerHTML = createLikertHTML(id, labels);
                 }
             });
@@ -322,7 +318,16 @@
         };
 
         window.commitPreSurvey = () => {
-            sessionData.pre = { freq: document.querySelector('input[name="q1"]:checked').value, skill: document.querySelector('input[name="q2"]:checked').value };
+            sessionData.pre = { 
+                freq: document.querySelector('input[name="q1"]:checked').value, 
+                skill: document.querySelector('input[name="q2"]:checked').value,
+                influence: {
+                    rule: document.querySelector('input[name="q3_rule"]:checked').value,
+                    graphic: document.querySelector('input[name="q3_graphic"]:checked').value,
+                    effect: document.querySelector('input[name="q3_effect"]:checked').value,
+                    sound: document.querySelector('input[name="q3_sound"]:checked').value
+                }
+            };
             showInter();
         };
 
@@ -382,64 +387,108 @@
 
         function showResultsSummary() {
             const container = document.getElementById('results-summary-list'); container.innerHTML = '';
-            const steps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
-            steps.forEach((m, idx) => {
+            routeSteps.forEach((m, idx) => {
                 container.innerHTML += `<div class="flex justify-between items-center bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm"><div class="flex flex-col text-left"><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${idx + 1}回目</span><span class="font-black text-slate-800 text-lg">モード ${m}</span></div><div class="text-right"><span class="text-4xl font-black text-slate-900">${sessionData.scores[m] || 0}</span><span class="text-xs font-black text-slate-400 ml-1">pts</span></div></div>`;
             });
             switchScreen('resultsSummary');
         }
 
         window.showPostSurvey = () => {
+            // Q4
             const q4cont = document.getElementById('q4-container'); q4cont.innerHTML = '';
-            routeSteps.forEach(m => { 
+            [1,2,3,4].forEach(m => { 
                 q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100 text-center">
                     <p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">モード${m}評価</p>
                     ${createLikertHTML(`q4_${m}`, ["つまらなかった", "　", "　", "　", "おもしろかった"])}
                 </div>`; 
             });
             
+            // Q5 Options
             const selects = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3'), document.getElementById('r4')];
-            selects.forEach(s => { s.innerHTML = '<option value="">選択してください</option>'; [1,2,3,4].forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.textContent = `モード ${m} (${modes[m].label.split(' ')[0]})`; s.appendChild(opt); }); });
+            selects.forEach(s => { 
+                s.innerHTML = '<option value="">選択してください</option>'; 
+                [1,2,3,4].forEach(m => { 
+                    const opt = document.createElement('option'); opt.value = m; opt.textContent = `モード ${m} (${modes[m].label.split(' ')[0]})`; s.appendChild(opt); 
+                }); 
+            });
             
-            const isA = userRoute === 'A';
-            const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
+            // Q6: Element Influence (Fixed Mapping)
+            const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
                 const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
-                q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center">
+                q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center">
                     <p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${l}</p>
-                    ${createLikertHTML(`q7_${k}`, ["影響しない", "　", "　", "　", "影響した"])}
+                    ${createLikertHTML(`q6_${k}`, ["影響しない", "　", "　", "　", "影響した"])}
                 </div>`;
             });
 
-            const q6label = document.getElementById('q6-label');
-            q6label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？(1:同じ～5：増加した）" : "Q7. 要素削減によりおもしろさは減少しましたか？（1:同じ～5:減少した）";
-            const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
-            const pairs = isA ? [{f:1,t:2,l:"グラフィック"},{f:2,t:3,l:"エフェクト"},{f:3,t:4,l:"サウンド"}] : [{f:4,t:3,l:"サウンド削減"},{f:3,t:2,l:"エフェクト削減"},{f:2,t:1,l:"グラフィック削減"}];
-            pairs.forEach(p => { q6cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center"><p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${p.f}→${p.t} (${p.l})</p>${createLikertHTML(`q6_${p.f}`)}</div>`; });
+            // Q7: Transition Evaluation (Fixed Mapping)
+            const isA = userRoute === 'A';
+            const q7label = document.getElementById('q7-label');
+            q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
+            const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
+            const pairs = isA ? 
+                [{f:1,t:2,l:"グラフィック追加"},{f:2,t:3,l:"エフェクト追加"},{f:3,t:4,l:"サウンド追加"}] : 
+                [{f:4,t:3,l:"サウンド削減"},{f:3,t:2,l:"エフェクト削減"},{f:2,t:1,l:"グラフィック削減"}];
+
+            pairs.forEach(p => { 
+                q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center">
+                    <p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${p.f}→${p.t} (${p.l})</p>
+                    ${createLikertHTML(`q7_${p.f}`)}
+                </div>`; 
+            });
+            
             switchScreen('post');
         };
 
         window.finalSubmit = async () => {
             const btn = document.getElementById('final-submit-btn');
-            const uniqueRanks = new Set([document.getElementById('r1').value, document.getElementById('r2').value, document.getElementById('r3').value, document.getElementById('r4').value].filter(r => r !== ""));
+            const rankInputs = [document.getElementById('r1').value, document.getElementById('r2').value, document.getElementById('r3').value, document.getElementById('r4').value];
+            const uniqueRanks = new Set(rankInputs.filter(r => r !== ""));
             if (uniqueRanks.size < 4) { document.getElementById('q5-error').classList.remove('hidden'); return; }
+            
             btn.disabled = true; btn.textContent = "データを送信中...";
             try {
                 const confirmedUser = user || await signInAnonymously(auth);
-                const post = { q4:{}, q5:[document.getElementById('r1').value, document.getElementById('r2').value, document.getElementById('r3').value, document.getElementById('r4').value], q6:{}, q7:{}, free: document.getElementById('free-ans').value };
+                const isA = userRoute === 'A';
+                
+                const post = { 
+                    q4: {}, 
+                    q5: rankInputs, 
+                    q6: {}, 
+                    q7: {}, 
+                    free: document.getElementById('free-ans').value 
+                };
+
+                // Data Collection Fix
                 [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`).value);
-                await addDoc(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'), { ...sessionData, post, timestamp: serverTimestamp(), route: userRoute, userId: confirmedUser.uid, game_type: "mole_v9_final" }); 
+                ["rule", "graphic", "effect", "sound"].forEach(k => post.q6[k] = document.querySelector(`input[name="q6_${k}"]:checked`).value);
+                const steps = isA ? [1,2,3] : [4,3,2];
+                steps.forEach(s => post.q7[s] = document.querySelector(`input[name="q7_${s}"]:checked`).value);
+
+                await addDoc(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'), { 
+                    ...sessionData, 
+                    post, 
+                    timestamp: serverTimestamp(), 
+                    route: userRoute, 
+                    userId: confirmedUser.uid, 
+                    game_type: "mole_v9_33" 
+                }); 
                 switchScreen('end'); 
-            } catch (err) { console.error("Firestore Save Error:", err); alert("送信に失敗しました。\n詳細: " + err.message); btn.disabled = false; btn.textContent = "再送信"; }
+            } catch (err) { 
+                alert("送信失敗: " + err.message); btn.disabled = false; btn.textContent = "再送信"; 
+            }
         };
 
         function whack(e) {
             if (!this.classList.contains('up')) return;
             const isBonus = this.dataset.type === 'bonus';
-            const mId = routeSteps[currentStepIndex] || 1; const mode = modes[mId];
+            const mId = routeSteps[currentStepIndex] || 1; 
+            const mode = modes[mId];
             score += isBonus ? 10 : 1; this.classList.remove('up'); document.getElementById('score-val').textContent = score;
             const clientX = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
+            
             if (mode.juicy) {
                 document.getElementById('main-body').classList.add('shake-active');
                 setTimeout(() => document.getElementById('main-body').classList.remove('shake-active'), 200);
@@ -447,11 +496,12 @@
             } else {
                 showSoberPopup(clientX, clientY, isBonus ? 10 : 1);
             }
-            if (mode.sound) { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); playTone(isBonus); }
+            if (mode.sound) playTone(isBonus);
             if (e.type.startsWith('touch')) e.preventDefault();
         }
 
         function playTone(isBonus) {
+            if (!audioCtx) return;
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.frequency.setValueAtTime(isBonus ? 950 : 440, audioCtx.currentTime);
@@ -473,38 +523,49 @@
         }
 
         window.executeDataReset = async () => {
-            const btn = document.querySelector('#modal-confirm button'); btn.textContent = "削除中..."; btn.disabled = true;
             try {
                 const snap = await getDocs(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'));
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'artifacts', customAppId, 'public', 'data', 'results', d.id))));
                 alert("削除完了"); location.reload();
-            } catch (e) { alert("削除失敗"); btn.disabled = false; btn.textContent = "はい、削除します"; }
+            } catch (e) { alert("削除失敗"); }
         };
 
         window.triggerCSVDownload = async () => {
-            const btn = document.getElementById('btn-csv-debug'); const originalText = btn.textContent; btn.textContent = "CSV取得中...";
-            if (!user) { alert("認証が完了していません。Connectionを確認してください。"); btn.textContent = originalText; return; }
+            const btn = document.getElementById('btn-csv-debug');
             try {
                 const snap = await getDocs(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'));
-                if (snap.empty) { alert("サーバー上にデータがありません。"); btn.textContent = originalText; return; }
-                let csv = "\uFEFF"; csv += "学籍番号,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_P1,Q6_P2,Q6_P3,自由記述\n";
+                if (snap.empty) { alert("データなし"); return; }
+                
+                // CSV Header Fix: Add Q5_4, Q6_all, Q7_all
+                let csv = "\uFEFF"; 
+                csv += "学籍番号,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_Rule,Q6_Graph,Q6_Eff,Q6_Snd,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
+                
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
-                    let dateStr = "";
-                    if (d.timestamp) { try { dateStr = d.timestamp.toDate().toLocaleString(); } catch(e) { dateStr = d.timestamp; } }
-                    const row = [d.studentId||"",d.route||"",dateStr,d.scores?.["1"]||0,d.scores?.["2"]||0,d.scores?.["3"]||0,d.scores?.["4"]||0,d.pre?.freq||3,d.pre?.skill||3,d.post?.q4?.["1"]||3,d.post?.q4?.["2"]||3,d.post?.q4?.["3"]||3,d.post?.q4?.["4"]||3,d.post?.q5?.[0]||"",d.post?.q5?.[1]||"",d.post?.q5?.[2]||"",d.post?.q5?.[3]||"",d.post?.q6?.["1"]||3,d.post?.q6?.["2"]||3,d.post?.q6?.["3"]||3,`"${(d.post?.free||"").replace(/"/g,'""')}"`];
+                    let dateStr = d.timestamp ? d.timestamp.toDate().toLocaleString() : "";
+                    const row = [
+                        d.studentId||"", d.route||"", dateStr,
+                        d.scores?.["1"]||0, d.scores?.["2"]||0, d.scores?.["3"]||0, d.scores?.["4"]||0,
+                        d.pre?.freq||3, d.pre?.skill||3,
+                        d.post?.q4?.["1"]||3, d.post?.q4?.["2"]||3, d.post?.q4?.["3"]||3, d.post?.q4?.["4"]||3,
+                        d.post?.q5?.[0]||"", d.post?.q5?.[1]||"", d.post?.q5?.[2]||"", d.post?.q5?.[3]||"",
+                        d.post?.q6?.rule||3, d.post?.q6?.graphic||3, d.post?.q6?.effect||3, d.post?.q6?.sound||3, // Q6 Fix
+                        d.post?.q7?.["1"]||d.post?.q7?.["4"]||3, // Q7 Fix (P1)
+                        d.post?.q7?.["2"]||d.post?.q7?.["3"]||3, // Q7 Fix (P2)
+                        d.post?.q7?.["3"]||d.post?.q7?.["2"]||3, // Q7 Fix (P3)
+                        `"${(d.post?.free||"").replace(/"/g,'""')}"`
+                    ];
                     csv += row.join(",") + "\n";
                 });
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_research_results.csv`;
-                document.body.appendChild(link); link.click(); document.body.removeChild(link); btn.textContent = originalText;
-            } catch (err) { alert("CSV取得に失敗しました。\n詳細: " + err.message); btn.textContent = originalText; }
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_v933_results.csv`;
+                link.click();
+            } catch (err) { alert("CSV取得失敗: " + err.message); }
         };
 
         window.addEventListener('keydown', e => {
             if (e.shiftKey && e.key.toUpperCase() === 'M') screens.debug.classList.toggle('hidden');
             if (e.shiftKey && e.key.toUpperCase() === 'D') triggerCSVDownload();
-            if (e.shiftKey && e.key.toUpperCase() === 'R') openConfirmModal();
         }, true);
 
         window.debugJump = (mId) => { screens.debug.classList.add('hidden'); isPlaying = false; clearInterval(timerId); bgmAudio.pause(); currentStepIndex = 999; setupGame(mId); switchScreen('game'); };

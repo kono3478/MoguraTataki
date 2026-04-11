@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>スペース・ディフェンダー - Keyboard & Mobile Fixed</title>
+    <title>スペース・ディフェンダー - Continuous Timer Edition</title>
     <style>
         :root {
             --bg-color: #050510;
@@ -84,7 +84,7 @@
             margin: 8px;
             border-radius: 30px;
             cursor: pointer;
-            width: 280px;
+            width: 300px;
             box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
             touch-action: manipulation;
         }
@@ -234,9 +234,9 @@
 
     <div id="screen-title">
         <h1 style="color: var(--accent-color); margin-bottom: 10px; font-size: 32px; letter-spacing: 4px;">SPACE DEFENDER</h1>
-        <p style="color: #889; margin-bottom: 30px;">キーボード操作を復旧しました。ハイスコアを目指せ！</p>
-        <button class="btn-mode" onclick="startGame(1)">MODE 1 (右スティック / 左FIRE)</button>
-        <button class="btn-mode" onclick="startGame(2)">MODE 2 (左スティック / 右FIRE)</button>
+        <p style="color: #889; margin-bottom: 30px;">被弾中もタイムは止まらない！スピーディーに復活せよ</p>
+        <button class="btn-mode" onclick="startGame(1)">MODE 1 (左スティック / 右FIRE)</button>
+        <button class="btn-mode" onclick="startGame(2)">MODE 2 (右スティック / 左FIRE)</button>
         <button class="btn-fullscreen" onclick="toggleFullScreen()">全画面表示にする</button>
     </div>
 
@@ -303,7 +303,6 @@
             { type: 'L', size: 38, speed: 1.6, score: 10, color: '#ee5253' }
         ];
 
-        // キーボード入力の状態管理
         const keys = { up: false, down: false, left: false, right: false };
 
         function toggleFullScreen() {
@@ -327,8 +326,9 @@
             left.innerHTML = ''; right.innerHTML = '';
             const joy = `<div class="joystick-base" id="joystick-base"><div class="joystick-thumb" id="joystick-thumb"></div></div>`;
             const act = `<div class="btn-action" id="btn-action">FIRE</div>`;
-            if (mode === 1) { left.innerHTML = act; right.innerHTML = joy; }
-            else { left.innerHTML = joy; right.innerHTML = act; }
+            
+            if (mode === 1) { left.innerHTML = joy; right.innerHTML = act; }
+            else { left.innerHTML = act; right.innerHTML = joy; }
             setupJoystickListeners();
             setupActionBtnListener();
         }
@@ -373,7 +373,6 @@
             btn.addEventListener('pointerleave', (e) => { e.preventDefault(); actionPressed = false; });
         }
 
-        // キーボードイベントの登録
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowUp' || e.key === 'w') keys.up = true;
             if (e.key === 'ArrowDown' || e.key === 's') keys.down = true;
@@ -404,17 +403,32 @@
             enemies.push({ x, y, vx: Math.cos(angle) * type.speed, vy: Math.sin(angle) * type.speed, ...type });
         }
 
+        function respawn() {
+            if (gameState === 'gameover') return;
+            
+            gameState = 'playing';
+            enemies.length = 0;
+            bullets.length = 0;
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+            player.heat = 0;
+            player.isOverheated = false;
+            joystick.vectorX = 0;
+            joystick.vectorY = 0;
+        }
+
         function startGame(mode) {
             gameMode = mode;
             gameState = 'playing';
-            score = 0; timeLeft = 30;
+            score = 0; 
+            timeLeft = 30;
             
             if (spawnIntervalId) clearInterval(spawnIntervalId);
             if (timerIntervalId) clearInterval(timerIntervalId);
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
-            enemies.length = 0; bullets.length = 0; particles.length = 0;
-            player.heat = 0; player.isOverheated = false;
+            particles.length = 0;
+            respawn(); 
             
             timerEl.innerText = timeLeft;
             scoreEl.innerText = score;
@@ -425,7 +439,8 @@
             
             spawnIntervalId = setInterval(spawnEnemy, 750);
             timerIntervalId = setInterval(() => {
-                if (gameState !== 'playing') return;
+                // gameover以外はカウントを続ける（hit中も減るように修正）
+                if (gameState === 'gameover') return; 
                 timeLeft--;
                 timerEl.innerText = timeLeft;
                 if (timeLeft <= 0) endGame();
@@ -459,27 +474,19 @@
             heatBarEl.style.background = player.isOverheated ? 'var(--danger-color)' : (player.heat > 70 ? '#ffeb3b' : 'var(--heat-color)');
             heatWarningEl.style.visibility = player.isOverheated ? 'visible' : 'hidden';
 
-            // 入力の計算
+            // 入力
             let inputX = joystick.vectorX;
             let inputY = joystick.vectorY;
-
-            // ジョイスティックが動いていない時はキーボード入力をチェック
             if (!joystick.active) {
                 if (keys.left) inputX = -1;
                 if (keys.right) inputX = 1;
                 if (keys.up) inputY = -1;
                 if (keys.down) inputY = 1;
-
-                // キーボードでの斜め移動時の速度補正
-                if (inputX !== 0 && inputY !== 0) {
-                    inputX *= 0.707;
-                    inputY *= 0.707;
-                }
+                if (inputX !== 0 && inputY !== 0) { inputX *= 0.707; inputY *= 0.707; }
             }
 
             player.vx = inputX * player.baseSpeed;
             player.vy = inputY * player.baseSpeed;
-            
             player.x += player.vx; player.y += player.vy;
             player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
             player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
@@ -500,7 +507,8 @@
                 if (Math.hypot(e.x - player.x, e.y - player.y) < player.radius + e.size * 0.7) {
                     gameState = 'hit';
                     for(let k=0; k<25; k++) particles.push({ x: player.x, y: player.y, vx: (Math.random()-0.5)*7, vy: (Math.random()-0.5)*7, life: 1, color: player.color });
-                    setTimeout(() => startGame(gameMode), 1000); return;
+                    setTimeout(respawn, 1000); 
+                    return;
                 }
                 bullets.forEach((b, j) => { if (Math.hypot(e.x - b.x, e.y - b.y) < e.size) { score += e.score; scoreEl.innerText = score; for(let k=0; k<10; k++) particles.push({x:e.x, y:e.y, vx:(Math.random()-0.5)*7, vy:(Math.random()-0.5)*7, life:1, color:e.color}); enemies.splice(i, 1); bullets.splice(j, 1); } });
                 if (e.x < -100 || e.x > canvas.width + 100 || e.y < -100 || e.y > canvas.height + 100) enemies.splice(i, 1);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたきアンケート v9.34</title>
+    <title>モグラたたきアンケート v9.38</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -18,15 +18,19 @@
         .theme-simple { background-color: #f8fafc; transition: background 0.5s; }
         .theme-simple .game-board-container { background-color: #ffffff; border: 4px solid #f1f5f9; }
         .theme-simple .hole { background-color: #e2e8f0; border-radius: 50%; box-shadow: inset 0 4px 6px rgba(0,0,0,0.05); }
+        
         .theme-farm { background-color: #f0fdf4; transition: background 0.5s; }
         .theme-farm .game-board-container { 
             background-color: #bef264; border: 8px solid #84cc16; 
             background-image: radial-gradient(#a3e635 20%, transparent 20%); background-size: 30px 30px;
         }
         .theme-farm .hole { 
-            background-color: #451a03; border: 4px solid #271201; border-radius: 40% 40% 25% 25%;
-            box-shadow: inset 0 12px 15px rgba(0,0,0,0.6);
+            background-color: #d2b48c; 
+            border: 4px solid #a89078; 
+            border-radius: 40% 40% 25% 25%;
+            box-shadow: inset 0 8px 10px rgba(0,0,0,0.2);
         }
+        
         .hole { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
         .mole {
             position: absolute; bottom: -100%; left: 0; width: 100%; height: 100%;
@@ -41,26 +45,36 @@
         .theme-farm .farm-mole { display: block !important; }
         .theme-farm .simple-mole { display: none !important; }
 
-        @keyframes strong-shake { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-10px, 10px); } 20%, 40%, 60%, 80% { transform: translate(10px, -10px); } }
-        .shake-active { animation: strong-shake 0.25s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes strong-shake { 
+            0%, 100% { transform: translate(0, 0); } 
+            10%, 30%, 50%, 70%, 90% { transform: translate(-3px, 3px); } 
+            20%, 40%, 60%, 80% { transform: translate(3px, -3px); } 
+        }
+        .shake-active { animation: strong-shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
 
         @keyframes flash-white { 0% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(255,255,255,0); } }
         .flash-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 5000; display: none; }
         .flash-active { display: block; animation: flash-white 0.3s ease-out forwards; }
 
-        @keyframes juicy-pop { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 30% { transform: translate(-50%, -100px) scale(2); opacity: 1; } 100% { transform: translate(-50%, -250px) scale(3); opacity: 0; } }
-        .score-popup-juicy { position: fixed; pointer-events: none; font-weight: 900; font-size: 4rem; z-index: 1000; animation: juicy-pop 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; text-shadow: 4px 4px 0px white; color: #1e293b; }
+        @keyframes juicy-pop { 
+            0% { transform: translate(-50%, 0) scale(0.8); opacity: 0; } 
+            30% { transform: translate(-50%, -60px) scale(1.2); opacity: 1; } 
+            100% { transform: translate(-50%, -120px) scale(1.5); opacity: 0; } 
+        }
+        .score-popup-juicy { 
+            position: fixed; pointer-events: none; font-weight: 900; 
+            font-size: 2.5rem; z-index: 1000; 
+            animation: juicy-pop 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; 
+            text-shadow: 2px 2px 0px white; color: #1e293b; 
+        }
         
         @keyframes sober-pop { 0% { transform: translate(-50%, 0); opacity: 1; } 100% { transform: translate(-50%, -50px); opacity: 0; } }
         .score-popup-sober { 
-            position: fixed; 
-            pointer-events: none; 
-            font-weight: 900; 
-            font-size: 3.3rem; 
-            z-index: 1000; 
-            animation: sober-pop 0.6s ease-out forwards; 
+            position: fixed; pointer-events: none; font-weight: 900; 
+            font-size: 2.2rem; z-index: 1000; 
+            animation: sober-pop 0.5s ease-out forwards; 
             color: #ffffff; 
-            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000;
+            text-shadow: 1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000;
         }
 
         .screen { width: 100%; max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; }
@@ -71,7 +85,6 @@
         .likert-item input { width: 2rem; height: 2rem; cursor: pointer; accent-color: #0f172a; }
         .likert-label { font-size: 0.7rem; font-weight: 900; color: #64748b; text-align: center; height: 1.2rem; display: flex; align-items: center; line-height: 1.2; }
         .likert-num { font-size: 1.5rem; font-weight: 900; color: #0f172a; }
-        .input-field { width: 100%; padding: 1.5rem; border: 4px solid #e2e8f0; border-radius: 2rem; font-size: 2.2rem; font-weight: 900; text-align: center; color: #0f172a; background: white; text-transform: uppercase; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         .modal-content { background: white; padding: 2.5rem; border-radius: 2rem; max-width: 400px; width: 100%; text-align: center; }
         #debug-menu { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.98); color: #22c55e; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; }
@@ -85,16 +98,16 @@
     <div id="modal-confirm" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-2xl font-black mb-4 text-slate-900">データの全削除</h3>
-            <p class="text-slate-500 mb-8 font-bold">集計された全回答データを削除しますか？</p>
+            <p class="text-slate-500 mb-8 font-bold">全データ（回答および発行ID）を削除し、カウンターを0000に戻しますか？</p>
             <div class="flex flex-col gap-3">
-                <button onclick="executeDataReset()" class="bg-red-500 text-white font-black py-4 rounded-xl shadow-lg">はい、削除します</button>
+                <button id="execute-reset-btn" onclick="executeDataReset()" class="bg-red-500 text-white font-black py-4 rounded-xl shadow-lg">はい、削除します</button>
                 <button onclick="closeConfirmModal()" class="bg-slate-100 text-slate-500 font-black py-4 rounded-xl">キャンセル</button>
             </div>
         </div>
     </div>
 
     <div id="debug-menu" class="hidden text-center">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.34</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.38</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
@@ -105,17 +118,16 @@
         <p class="mt-8 text-slate-500 font-bold text-sm">Shift+M: Menu / Shift+D: CSV / Shift+R: Reset</p>
     </div>
 
+    <!-- Screen: Start -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter leading-tight">モグラたたき<br>アンケート</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.34 (Ready)</p>
-        <div class="mb-12 text-left">
-            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-3 text-center">任意の3桁の半角数字を入力してください</label>
-            <input type="text" id="student-id" class="input-field" placeholder="123" maxlength="15">
-        </div>
-        <button onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">調査を開始する</button>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.38 (Ready)</p>
+        <p class="text-slate-500 mb-12 font-bold leading-relaxed">ゲームを通じたUI演出の評価実験です。<br>4つの異なるモードを順番にプレイしていただきます。</p>
+        <button id="start-survey-btn" onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">調査を開始する</button>
         <p id="auth-status" class="mt-4 text-[10px] text-slate-300 uppercase text-center">Connecting...</p>
     </div>
 
+    <!-- Screen: Pre-Survey -->
     <div id="screen-pre-survey" class="screen hidden max-h-[95vh] overflow-y-auto px-1 text-slate-800">
         <h2 class="text-3xl font-black mb-10 text-center text-slate-900">事前アンケート</h2>
         <div class="survey-card"><p class="font-bold mb-8 text-lg">Q1. 普段どの程度ゲームを遊びますか？</p><div id="likert-q1"></div></div>
@@ -132,12 +144,14 @@
         <button onclick="commitPreSurvey()" class="w-full bg-slate-900 text-white font-black py-8 rounded-[2.5rem] mb-20 shadow-2xl active:scale-95 transition text-xl">回答を保存して開始</button>
     </div>
 
+    <!-- Screen: Inter -->
     <div id="screen-inter" class="screen hidden bg-white p-12 rounded-[4.5rem] shadow-2xl text-center border border-slate-100">
         <h2 id="inter-title" class="text-4xl font-black mb-6 text-slate-900 leading-tight">準備</h2>
         <p id="inter-desc" class="text-slate-500 mb-12 font-bold leading-relaxed text-2xl"></p>
         <button onclick="launchMode()" class="w-full bg-blue-600 text-white font-black py-8 px-6 rounded-[3.5rem] shadow-2xl active:scale-95 transition text-3xl">START</button>
     </div>
 
+    <!-- Screen: Game -->
     <div id="screen-game" class="hidden w-full max-w-sm flex flex-col items-center">
         <div id="impact-layer" class="w-full h-full fixed inset-0 pointer-events-none z-40"></div>
         <div class="w-full flex justify-between items-center mb-8 bg-white/95 p-6 rounded-[3rem] shadow-xl border-4 border-white">
@@ -152,17 +166,17 @@
         </div>
     </div>
 
+    <!-- Screen: Results Summary -->
     <div id="screen-game-results" class="screen hidden bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h2 class="text-3xl font-black mb-8 text-slate-900 tracking-tighter text-center">プレイ結果まとめ</h2>
         <div id="results-summary-list" class="space-y-4 mb-10 text-left"></div>
         <button onclick="showPostSurvey()" class="w-full bg-slate-900 text-white font-bold py-6 rounded-2xl text-xl shadow-lg transition active:scale-95">アンケートに進む</button>
     </div>
 
+    <!-- Screen: Post-Survey -->
     <div id="screen-post-survey" class="screen hidden max-h-[95vh] overflow-y-auto p-1 text-slate-800">
         <h2 class="text-4xl font-black mb-12 text-center tracking-tighter text-slate-900">事後アンケート</h2>
-        
         <div class="survey-card"><p class="font-bold mb-10 text-xl text-slate-700 leading-tight">Q4. 各モードのおもしろさをそれぞれ評価してください</p><div id="q4-container" class="space-y-16"></div></div>
-        
         <div class="survey-card">
             <p class="font-bold mb-10 text-xl text-slate-800 leading-tight">Q5. 4つのモードをおもしろかった順に選択してください (重複不可)</p>
             <div class="space-y-8">
@@ -173,22 +187,13 @@
             </div>
             <p id="q5-error" class="text-red-500 font-black mt-6 hidden text-center bg-red-50 p-4 rounded-2xl border-2 border-red-100">※順位をすべて重複なく選択してください</p>
         </div>
-
-        <div class="survey-card">
-            <p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. 以下の要素はゲームのおもしろさにどの程度影響したと思いますか</p>
-            <div id="q6-container" class="space-y-16"></div>
-        </div>
-
-        <div class="survey-card">
-            <p id="q7-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p>
-            <div id="q7-container" class="space-y-16"></div>
-        </div>
-
+        <div class="survey-card"><p class="font-bold mb-12 text-center text-xl text-slate-700">Q6. 以下の要素はゲームのおもしろさにどの程度影響したと思いますか</p><div id="q6-container" class="space-y-16"></div></div>
+        <div class="survey-card"><p id="q7-label" class="font-bold mb-10 text-xl text-center text-slate-700"></p><div id="q7-container" class="space-y-16"></div></div>
         <div class="survey-card"><p class="font-bold mb-6 text-xl text-center text-slate-800">自由記述</p><textarea id="free-ans" class="w-full bg-slate-50 p-8 rounded-[3rem] h-60 text-lg border-4 border-slate-100 outline-none focus:border-blue-400" placeholder="プレイ前の予想と、実際にプレイした後の印象に違いがあれば書いてください..."></textarea></div>
-        
         <button id="final-submit-btn" onclick="finalSubmit()" class="w-full bg-blue-600 text-white font-black py-10 rounded-[3.5rem] mb-32 shadow-2xl active:scale-95 transition text-3xl">調査データを送信して終了</button>
     </div>
 
+    <!-- Screen: End -->
     <div id="screen-end" class="screen hidden bg-white p-12 rounded-[5rem] shadow-2xl text-center border border-slate-100">
         <div class="w-40 h-40 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-12 text-8xl font-bold shadow-inner animate-pulse">✓</div>
         <h2 class="text-5xl font-black mb-8 text-slate-900 tracking-tighter">送信完了</h2>
@@ -196,6 +201,7 @@
         <button onclick="location.reload()" class="text-slate-300 font-bold text-xs tracking-[0.8em] underline uppercase">Return to Top</button>
     </div>
 
+    <!-- Templates -->
     <template id="mole-template">
         <div class="mole-graphic farm-mole">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -225,7 +231,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc, runTransaction, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Config
         const firebaseConfig = {
@@ -256,7 +262,6 @@
         onAuthStateChanged(auth, (u) => { user = u; });
         startSignIn();
 
-        // Audio
         let audioCtx;
         const BGM_URL = "https://raw.githubusercontent.com/kono3478/sozai/main/bgm_koneko.mp3";
         let bgmAudio = new Audio(BGM_URL);
@@ -296,26 +301,56 @@
             return `<div class="likert-container">${[1, 2, 3, 4, 5].map(v => `<label class="likert-item"><span class="likert-label">${labels[v-1] || '　'}</span><span class="likert-num">${v}</span><input type="radio" name="${name}" value="${v}" ${v === 3 ? 'checked' : ''}></label>`).join('')}</div>`;
         }
 
-        window.handleStartClick = () => {
-            const sidInput = document.getElementById('student-id');
-            if (!sidInput.value.trim()) { alert("IDを入力してください"); return; }
+        // Sequential 4-digit ID発行 (0000 - 9999)
+        window.handleStartClick = async () => {
+            if (!user) { alert("認証が完了していません。しばらくお待ち下さい。"); return; }
+            const startBtn = document.getElementById('start-survey-btn');
+            startBtn.disabled = true;
+            startBtn.innerText = "ID発行中...";
+
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             bgmAudio.load();
-            sessionData.studentId = sidInput.value.trim().toUpperCase();
-            const lastDigit = parseInt(sessionData.studentId.slice(-1)) || 1;
-            userRoute = (lastDigit % 2 !== 0) ? 'A' : 'B';
-            routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
-            
-            ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
-                const container = document.getElementById(`likert-${id.replace(/_/g,'-')}`);
-                if (container) {
-                    let labels = ["ほとんど遊ばない", "　", "　", "　", "良く遊ぶ"];
-                    if (id === "q2") labels = ["苦手", "　", "　", "　", "得意"];
-                    else if (id !== "q1") labels = ["影響しない", "　", "　", "　", "影響する"];
-                    container.innerHTML = createLikertHTML(id, labels);
-                }
-            });
-            switchScreen('pre');
+
+            try {
+                // Counterドキュメントのパス (Rule 1準拠)
+                const counterRef = doc(db, 'artifacts', customAppId, 'public', 'data', 'counter', 'state');
+                
+                // トランザクションで連番を発行
+                const newId = await runTransaction(db, async (transaction) => {
+                    const counterDoc = await transaction.get(counterRef);
+                    let currentCount = 0;
+                    if (counterDoc.exists()) {
+                        currentCount = counterDoc.data().count || 0;
+                    }
+                    const nextCount = currentCount + 1;
+                    transaction.set(counterRef, { count: nextCount });
+                    return currentCount; // 0から開始
+                });
+
+                // 4桁にパディング (0000形式)
+                sessionData.studentId = newId.toString().padStart(4, '0');
+                
+                // ルートをランダム(50%)で決定
+                userRoute = Math.random() < 0.5 ? 'A' : 'B';
+                routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
+                
+                // アンケート準備
+                ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
+                    const container = document.getElementById(`likert-${id.replace(/_/g,'-')}`);
+                    if (container) {
+                        let labels = ["ほとんど遊ばない", "　", "　", "　", "良く遊ぶ"];
+                        if (id === "q2") labels = ["苦手", "　", "　", "　", "得意"];
+                        else if (id !== "q1") labels = ["影響しない", "　", "　", "　", "影響する"];
+                        container.innerHTML = createLikertHTML(id, labels);
+                    }
+                });
+                switchScreen('pre');
+            } catch (err) {
+                console.error("ID発行エラー:", err);
+                alert("IDの発行に失敗しました。再試行してください。");
+                startBtn.disabled = false;
+                startBtn.innerText = "調査を開始する";
+            }
         };
 
         window.commitPreSurvey = () => {
@@ -395,7 +430,6 @@
         }
 
         window.showPostSurvey = () => {
-            // Q4
             const q4cont = document.getElementById('q4-container'); q4cont.innerHTML = '';
             [1,2,3,4].forEach(m => { 
                 q4cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2rem] border-2 border-slate-100 text-center">
@@ -404,7 +438,6 @@
                 </div>`; 
             });
             
-            // Q5 Options
             const selects = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3'), document.getElementById('r4')];
             selects.forEach(s => { 
                 s.innerHTML = '<option value="">選択してください</option>'; 
@@ -413,7 +446,6 @@
                 }); 
             });
             
-            // Q6 (Influence of elements)
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
                 const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
@@ -423,7 +455,6 @@
                 </div>`;
             });
 
-            // Q7 (Change evaluation)
             const isA = userRoute === 'A';
             const q7label = document.getElementById('q7-label');
             q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
@@ -438,7 +469,6 @@
                     ${createLikertHTML(`q7_${p.f}`)}
                 </div>`; 
             });
-            
             switchScreen('post');
         };
 
@@ -460,7 +490,7 @@
                 steps.forEach(s => post.q7[s] = document.querySelector(`input[name="q7_${s}"]:checked`).value);
 
                 await addDoc(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'), { 
-                    ...sessionData, post, timestamp: serverTimestamp(), route: userRoute, userId: confirmedUser.uid, game_type: "mole_v9_34" 
+                    ...sessionData, post, timestamp: serverTimestamp(), route: userRoute, userId: confirmedUser.uid, game_type: "mole_v9_38" 
                 }); 
                 switchScreen('end'); 
             } catch (err) { 
@@ -500,21 +530,37 @@
         function showJuicyPopup(x, y, pts) {
             const p = document.createElement('div'); p.className = `score-popup-juicy`;
             p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`;
-            document.body.appendChild(p); setTimeout(() => p.remove(), 700);
+            document.body.appendChild(p); setTimeout(() => p.remove(), 600);
         }
 
         function showSoberPopup(x, y, pts) {
             const p = document.createElement('div'); p.className = `score-popup-sober`;
             p.textContent = `+${pts}`; p.style.left = `${x}px`; p.style.top = `${y}px`;
-            document.body.appendChild(p); setTimeout(() => p.remove(), 600);
+            document.body.appendChild(p); setTimeout(() => p.remove(), 500);
         }
 
+        // リセット機能: 結果データ全削除 + IDカウンターを0にリセット
         window.executeDataReset = async () => {
+            const resetBtn = document.getElementById('execute-reset-btn');
+            resetBtn.disabled = true;
+            resetBtn.innerText = "削除・リセット中...";
             try {
+                // 回答データの全削除
                 const snap = await getDocs(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'));
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'artifacts', customAppId, 'public', 'data', 'results', d.id))));
-                alert("削除完了"); location.reload();
-            } catch (e) { alert("削除失敗"); }
+                
+                // カウンターの0リセット
+                const counterRef = doc(db, 'artifacts', customAppId, 'public', 'data', 'counter', 'state');
+                await setDoc(counterRef, { count: 0 });
+
+                alert("データ削除およびIDカウンターのリセットが完了しました。");
+                location.reload();
+            } catch (e) {
+                console.error("リセットエラー:", e);
+                alert("削除に失敗しました。詳細: " + e.message);
+                resetBtn.disabled = false;
+                resetBtn.innerText = "はい、削除します";
+            }
         };
 
         window.triggerCSVDownload = async () => {
@@ -523,7 +569,7 @@
                 if (snap.empty) { alert("データなし"); return; }
                 
                 let csv = "\uFEFF"; 
-                csv += "学籍番号,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_Rule,Q6_Graph,Q6_Eff,Q6_Snd,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
+                csv += "発行ID,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_Rule,Q6_Graph,Q6_Eff,Q6_Snd,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
                 
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
@@ -543,7 +589,7 @@
                     csv += row.join(",") + "\n";
                 });
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_results_v934.csv`;
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_results_v938.csv`;
                 link.click();
             } catch (err) { alert("CSV失敗: " + err.message); }
         };
@@ -551,7 +597,7 @@
         window.addEventListener('keydown', e => {
             if (e.shiftKey && e.key.toUpperCase() === 'M') screens.debug.classList.toggle('hidden');
             if (e.shiftKey && e.key.toUpperCase() === 'D') triggerCSVDownload();
-            if (e.shiftKey && e.key.toUpperCase() === 'R') openConfirmModal(); // Reset Fix
+            if (e.shiftKey && e.key.toUpperCase() === 'R') openConfirmModal();
         }, true);
 
         window.debugJump = (mId) => { screens.debug.classList.add('hidden'); isPlaying = false; clearInterval(timerId); bgmAudio.pause(); currentStepIndex = 999; setupGame(mId); switchScreen('game'); };

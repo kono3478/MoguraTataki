@@ -457,7 +457,7 @@
 
             const isA = userRoute === 'A';
             const q7label = document.getElementById('q7-label');
-            q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
+            q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？（1：変化まし～5：増加した）" : "Q7. 要素削減によりおもしろさは減少しましたか？（1：変化まし～5：減少した）";
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             const pairs = isA ? 
                 [{f:1,t:2,l:"グラフィック追加"},{f:2,t:3,l:"エフェクト追加"},{f:3,t:4,l:"サウンド追加"}] : 

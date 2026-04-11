@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>モグラたたきアンケート v9.38</title>
+    <title>モグラたたきアンケート v9.41</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -24,6 +24,7 @@
             background-color: #bef264; border: 8px solid #84cc16; 
             background-image: radial-gradient(#a3e635 20%, transparent 20%); background-size: 30px 30px;
         }
+        /* 穴の色を明るい色に設定してモグラとのコントラストを強調 */
         .theme-farm .hole { 
             background-color: #d2b48c; 
             border: 4px solid #a89078; 
@@ -37,14 +38,18 @@
             display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;
         }
         .mole.up { bottom: 5%; }
+
+        /* ヒット可能時間を公平にするためアニメーション速度を全モードで統一 */
         .mole.standard-move { transition: bottom 0.12s ease-out; }
-        .mole.juicy-move { transition: bottom 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.4); }
+        .mole.juicy-move { transition: bottom 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.2); }
+
         .mole-graphic { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
         .theme-simple .farm-mole { display: none !important; }
         .theme-simple .simple-mole { display: flex !important; }
         .theme-farm .farm-mole { display: block !important; }
         .theme-farm .simple-mole { display: none !important; }
 
+        /* 画面振動を抑えめに設定 */
         @keyframes strong-shake { 
             0%, 100% { transform: translate(0, 0); } 
             10%, 30%, 50%, 70%, 90% { transform: translate(-3px, 3px); } 
@@ -56,6 +61,7 @@
         .flash-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 5000; display: none; }
         .flash-active { display: block; animation: flash-white 0.3s ease-out forwards; }
 
+        /* スコアポップアップを地味めに調整 */
         @keyframes juicy-pop { 
             0% { transform: translate(-50%, 0) scale(0.8); opacity: 0; } 
             30% { transform: translate(-50%, -60px) scale(1.2); opacity: 1; } 
@@ -95,10 +101,11 @@
 
     <div id="flash-overlay" class="flash-overlay"></div>
 
+    <!-- Modals -->
     <div id="modal-confirm" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-2xl font-black mb-4 text-slate-900">データの全削除</h3>
-            <p class="text-slate-500 mb-8 font-bold">全データ（回答および発行ID）を削除し、カウンターを0000に戻しますか？</p>
+            <p class="text-slate-500 mb-8 font-bold">全回答データを削除し、IDカウンターを0000に戻しますか？</p>
             <div class="flex flex-col gap-3">
                 <button id="execute-reset-btn" onclick="executeDataReset()" class="bg-red-500 text-white font-black py-4 rounded-xl shadow-lg">はい、削除します</button>
                 <button onclick="closeConfirmModal()" class="bg-slate-100 text-slate-500 font-black py-4 rounded-xl">キャンセル</button>
@@ -106,8 +113,9 @@
         </div>
     </div>
 
+    <!-- Admin Console -->
     <div id="debug-menu" class="hidden text-center">
-        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.38</h2>
+        <h2 class="text-3xl font-black mb-12 tracking-widest text-emerald-400 uppercase">Admin Console v9.41</h2>
         <div onclick="debugJump(1)" class="debug-row">MODE 1: RULE</div>
         <div onclick="debugJump(2)" class="debug-row">MODE 2: GRAPHIC</div>
         <div onclick="debugJump(3)" class="debug-row">MODE 3: EFFECT</div>
@@ -121,7 +129,7 @@
     <!-- Screen: Start -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter leading-tight">モグラたたき<br>アンケート</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.38 (Ready)</p>
+        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.41 (Ready)</p>
         <p class="text-slate-500 mb-12 font-bold leading-relaxed">ゲームを通じたUI演出の評価実験です。<br>4つの異なるモードを順番にプレイしていただきます。</p>
         <button id="start-survey-btn" onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">調査を開始する</button>
         <p id="auth-status" class="mt-4 text-[10px] text-slate-300 uppercase text-center">Connecting...</p>
@@ -231,9 +239,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc, runTransaction, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc, runTransaction, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBpzqOlBowj-2ERZJOZzZnh-KbfBJ6wN5Y",
             authDomain: "shooter1-4.firebaseapp.com",
@@ -301,9 +308,9 @@
             return `<div class="likert-container">${[1, 2, 3, 4, 5].map(v => `<label class="likert-item"><span class="likert-label">${labels[v-1] || '　'}</span><span class="likert-num">${v}</span><input type="radio" name="${name}" value="${v}" ${v === 3 ? 'checked' : ''}></label>`).join('')}</div>`;
         }
 
-        // Sequential 4-digit ID発行 (0000 - 9999)
+        // Sequential 4-digit ID (0000 - 9999) 発行
         window.handleStartClick = async () => {
-            if (!user) { alert("認証が完了していません。しばらくお待ち下さい。"); return; }
+            if (!user) { alert("認証が完了していません。接続を確認してください。"); return; }
             const startBtn = document.getElementById('start-survey-btn');
             startBtn.disabled = true;
             startBtn.innerText = "ID発行中...";
@@ -312,10 +319,7 @@
             bgmAudio.load();
 
             try {
-                // Counterドキュメントのパス (Rule 1準拠)
                 const counterRef = doc(db, 'artifacts', customAppId, 'public', 'data', 'counter', 'state');
-                
-                // トランザクションで連番を発行
                 const newId = await runTransaction(db, async (transaction) => {
                     const counterDoc = await transaction.get(counterRef);
                     let currentCount = 0;
@@ -324,17 +328,13 @@
                     }
                     const nextCount = currentCount + 1;
                     transaction.set(counterRef, { count: nextCount });
-                    return currentCount; // 0から開始
+                    return currentCount; 
                 });
 
-                // 4桁にパディング (0000形式)
                 sessionData.studentId = newId.toString().padStart(4, '0');
-                
-                // ルートをランダム(50%)で決定
                 userRoute = Math.random() < 0.5 ? 'A' : 'B';
                 routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
                 
-                // アンケート準備
                 ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
                     const container = document.getElementById(`likert-${id.replace(/_/g,'-')}`);
                     if (container) {
@@ -346,7 +346,6 @@
                 });
                 switchScreen('pre');
             } catch (err) {
-                console.error("ID発行エラー:", err);
                 alert("IDの発行に失敗しました。再試行してください。");
                 startBtn.disabled = false;
                 startBtn.innerText = "調査を開始する";
@@ -396,13 +395,14 @@
         }
 
         async function gameLoop() {
+            // 全モードで出現期待値を1.0秒間隔に統一
             while (isPlaying) {
-                const count = Math.floor(Math.random() * 2) + 1;
+                const count = Math.floor(Math.random() * 2) + 1; 
                 const molesArr = Array.from(document.querySelectorAll('.mole:not(.up)'));
                 molesArr.sort(() => 0.5 - Math.random()).slice(0, count).forEach((mole, i) => {
                     setTimeout(() => { if (isPlaying) peep(mole); }, i * 200);
                 });
-                await new Promise(r => setTimeout(r, 800 + Math.random() * 400));
+                await new Promise(r => setTimeout(r, 800 + Math.random() * 400)); // 平均1000ms
             }
         }
 
@@ -410,6 +410,7 @@
             const isBonus = Math.random() < 0.25;
             mole.innerHTML = ''; mole.appendChild(document.getElementById(isBonus ? 'bonus-mole-template' : 'mole-template').content.cloneNode(true));
             mole.dataset.type = isBonus ? 'bonus' : 'normal'; mole.classList.add('up');
+            // 表示時間（ヒット可能時間）を全モードで1000msに固定
             setTimeout(() => { if (mole) mole.classList.remove('up'); }, 1000);
         }
 
@@ -437,7 +438,6 @@
                     ${createLikertHTML(`q4_${m}`, ["つまらなかった", "　", "　", "　", "おもしろかった"])}
                 </div>`; 
             });
-            
             const selects = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3'), document.getElementById('r4')];
             selects.forEach(s => { 
                 s.innerHTML = '<option value="">選択してください</option>'; 
@@ -445,7 +445,6 @@
                     const opt = document.createElement('option'); opt.value = m; opt.textContent = `モード ${m} (${modes[m].label.split(' ')[0]})`; s.appendChild(opt); 
                 }); 
             });
-            
             const q6cont = document.getElementById('q6-container'); q6cont.innerHTML = '';
             ["rule", "graphic", "effect", "sound"].forEach(k => {
                 const l = {rule:"ルール", graphic:"グラフィック", effect:"エフェクト", sound:"サウンド"}[k];
@@ -454,7 +453,6 @@
                     ${createLikertHTML(`q6_${k}`, ["影響しない", "　", "　", "　", "影響した"])}
                 </div>`;
             });
-
             const isA = userRoute === 'A';
             const q7label = document.getElementById('q7-label');
             q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
@@ -462,7 +460,6 @@
             const pairs = isA ? 
                 [{f:1,t:2,l:"グラフィック追加"},{f:2,t:3,l:"エフェクト追加"},{f:3,t:4,l:"サウンド追加"}] : 
                 [{f:4,t:3,l:"サウンド削減"},{f:3,t:2,l:"エフェクト削減"},{f:2,t:1,l:"グラフィック削減"}];
-
             pairs.forEach(p => { 
                 q7cont.innerHTML += `<div class="bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100 text-center">
                     <p class="text-xs font-black text-slate-400 mb-8 uppercase tracking-widest text-center">${p.f}→${p.t} (${p.l})</p>
@@ -481,16 +478,13 @@
             btn.disabled = true; btn.textContent = "データを送信中...";
             try {
                 const confirmedUser = user || await signInAnonymously(auth);
-                const isA = userRoute === 'A';
                 const post = { q4: {}, q5: rankInputs, q6: {}, q7: {}, free: document.getElementById('free-ans').value };
-
                 [1,2,3,4].forEach(m => post.q4[m] = document.querySelector(`input[name="q4_${m}"]:checked`).value);
                 ["rule", "graphic", "effect", "sound"].forEach(k => post.q6[k] = document.querySelector(`input[name="q6_${k}"]:checked`).value);
-                const steps = isA ? [1,2,3] : [4,3,2];
+                const steps = userRoute === 'A' ? [1,2,3] : [4,3,2];
                 steps.forEach(s => post.q7[s] = document.querySelector(`input[name="q7_${s}"]:checked`).value);
-
                 await addDoc(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'), { 
-                    ...sessionData, post, timestamp: serverTimestamp(), route: userRoute, userId: confirmedUser.uid, game_type: "mole_v9_38" 
+                    ...sessionData, post, timestamp: serverTimestamp(), route: userRoute, userId: confirmedUser.uid, game_type: "mole_v9_41" 
                 }); 
                 switchScreen('end'); 
             } catch (err) { 
@@ -501,19 +495,20 @@
         function whack(e) {
             if (!this.classList.contains('up')) return;
             const isBonus = this.dataset.type === 'bonus';
-            const mId = routeSteps[currentStepIndex] || 1; const mode = modes[mId];
-            score += isBonus ? 10 : 1; this.classList.remove('up'); document.getElementById('score-val').textContent = score;
+            const mId = routeSteps[currentStepIndex] || 1;
+            score += isBonus ? 10 : 1; 
+            this.classList.remove('up'); 
+            document.getElementById('score-val').textContent = score;
             const clientX = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
             const clientY = e.type.startsWith('touch') ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
-            
-            if (mode.juicy) {
+            if (modes[mId].juicy) {
                 document.getElementById('main-body').classList.add('shake-active');
                 setTimeout(() => document.getElementById('main-body').classList.remove('shake-active'), 200);
                 showJuicyPopup(clientX, clientY, isBonus ? 10 : 1);
             } else {
                 showSoberPopup(clientX, clientY, isBonus ? 10 : 1);
             }
-            if (mode.sound) playTone(isBonus);
+            if (modes[mId].sound) playTone(isBonus);
             if (e.type.startsWith('touch')) e.preventDefault();
         }
 
@@ -542,56 +537,30 @@
         // リセット機能: 結果データ全削除 + IDカウンターを0にリセット
         window.executeDataReset = async () => {
             const resetBtn = document.getElementById('execute-reset-btn');
-            resetBtn.disabled = true;
-            resetBtn.innerText = "削除・リセット中...";
+            resetBtn.disabled = true; resetBtn.innerText = "リセット中...";
             try {
-                // 回答データの全削除
                 const snap = await getDocs(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'));
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'artifacts', customAppId, 'public', 'data', 'results', d.id))));
-                
-                // カウンターの0リセット
-                const counterRef = doc(db, 'artifacts', customAppId, 'public', 'data', 'counter', 'state');
-                await setDoc(counterRef, { count: 0 });
-
-                alert("データ削除およびIDカウンターのリセットが完了しました。");
-                location.reload();
-            } catch (e) {
-                console.error("リセットエラー:", e);
-                alert("削除に失敗しました。詳細: " + e.message);
-                resetBtn.disabled = false;
-                resetBtn.innerText = "はい、削除します";
-            }
+                await setDoc(doc(db, 'artifacts', customAppId, 'public', 'data', 'counter', 'state'), { count: 0 });
+                alert("削除・ID初期化完了"); location.reload();
+            } catch (e) { alert("リセット失敗"); resetBtn.disabled = false; }
         };
 
         window.triggerCSVDownload = async () => {
             try {
                 const snap = await getDocs(collection(db, 'artifacts', customAppId, 'public', 'data', 'results'));
                 if (snap.empty) { alert("データなし"); return; }
-                
-                let csv = "\uFEFF"; 
-                csv += "発行ID,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_Rule,Q6_Graph,Q6_Eff,Q6_Snd,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
-                
+                let csv = "\uFEFF発行ID,ルート,日時,Mode1点,Mode2点,Mode3点,Mode4点,事前Q1,事前Q2,Q4_M1,Q4_M2,Q4_M3,Q4_M4,Q5_1,Q5_2,Q5_3,Q5_4,Q6_Rule,Q6_Graph,Q6_Eff,Q6_Snd,Q7_P1,Q7_P2,Q7_P3,自由記述\n";
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
                     let dateStr = d.timestamp ? d.timestamp.toDate().toLocaleString() : "";
-                    const row = [
-                        d.studentId||"", d.route||"", dateStr,
-                        d.scores?.["1"]||0, d.scores?.["2"]||0, d.scores?.["3"]||0, d.scores?.["4"]||0,
-                        d.pre?.freq||3, d.pre?.skill||3,
-                        d.post?.q4?.["1"]||3, d.post?.q4?.["2"]||3, d.post?.q4?.["3"]||3, d.post?.q4?.["4"]||3,
-                        d.post?.q5?.[0]||"", d.post?.q5?.[1]||"", d.post?.q5?.[2]||"", d.post?.q5?.[3]||"",
-                        d.post?.q6?.rule||3, d.post?.q6?.graphic||3, d.post?.q6?.effect||3, d.post?.q6?.sound||3,
-                        d.post?.q7?.["1"]||d.post?.q7?.["4"]||3,
-                        d.post?.q7?.["2"]||d.post?.q7?.["3"]||3,
-                        d.post?.q7?.["3"]||d.post?.q7?.["2"]||3,
-                        `"${(d.post?.free||"").replace(/"/g,'""')}"`
-                    ];
+                    const row = [d.studentId||"", d.route||"", dateStr, d.scores?.["1"]||0, d.scores?.["2"]||0, d.scores?.["3"]||0, d.scores?.["4"]||0, d.pre?.freq||3, d.pre?.skill||3, d.post?.q4?.["1"]||3, d.post?.q4?.["2"]||3, d.post?.q4?.["3"]||3, d.post?.q4?.["4"]||3, d.post?.q5?.[0]||"", d.post?.q5?.[1]||"", d.post?.q5?.[2]||"", d.post?.q5?.[3]||"", d.post?.q6?.rule||3, d.post?.q6?.graphic||3, d.post?.q6?.effect||3, d.post?.q6?.sound||3, d.post?.q7?.["1"]||d.post?.q7?.["4"]||3, d.post?.q7?.["2"]||d.post?.q7?.["3"]||3, d.post?.q7?.["3"]||d.post?.q7?.["2"]||3, `"${(d.post?.free||"").replace(/"/g,'""')}"`];
                     csv += row.join(",") + "\n";
                 });
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_results_v938.csv`;
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mole_v941_results.csv`;
                 link.click();
-            } catch (err) { alert("CSV失敗: " + err.message); }
+            } catch (err) { alert("CSV取得失敗: " + err.message); }
         };
 
         window.addEventListener('keydown', e => {

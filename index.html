@@ -129,8 +129,14 @@
     <!-- Screen: Start -->
     <div id="screen-start" class="screen bg-white p-10 rounded-[3.5rem] shadow-2xl text-center border border-slate-100">
         <h1 class="text-5xl font-black mb-6 text-slate-900 tracking-tighter leading-tight">モグラたたき<br>アンケート</h1>
-        <p class="text-slate-400 mb-12 font-black tracking-widest uppercase text-[10px]">System v9.41 (Ready)</p>
-        <p class="text-slate-500 mb-12 font-bold leading-relaxed">ゲームを通じたUI演出の評価実験です。<br>4つの異なるモードを順番にプレイしていただきます。できるだけ多くのモグラをタップしてください。赤いモグラは高得点です。</p>
+        <p class="text-slate-400 mb-10 font-black tracking-widest uppercase text-[10px]">System v9.41 (Ready)</p>
+        <p class="text-slate-500 mb-8 font-bold leading-relaxed">ゲームを通じたUI演出の評価実験です。<br>4つの異なるモードを順番にプレイしていただきます。できるだけ多くのモグラをタップしてください。赤いモグラは高得点です。</p>
+        
+        <!-- 追加: 数字入力エリア -->
+        <p class="text-sm font-black text-slate-700 mb-2">3桁の半角数字を入力してください</p>
+        <input type="text" id="route-number-input" maxlength="3" placeholder="例: 123" class="w-full bg-slate-100 p-4 rounded-3xl text-center text-4xl font-mono tracking-widest font-black mb-2 border-4 border-transparent outline-none focus:border-blue-400 transition">
+        <p id="route-number-error" class="text-red-500 font-bold text-sm mb-6 h-5 opacity-0 transition-opacity">正確に3桁の半角数字を入力してください</p>
+
         <button id="start-survey-btn" onclick="handleStartClick()" class="w-full bg-slate-900 text-white font-black py-8 px-6 rounded-[2.5rem] transition transform active:scale-95 shadow-2xl text-2xl">調査を開始する</button>
         <p id="auth-status" class="mt-4 text-[10px] text-slate-300 uppercase text-center">Connecting...</p>
     </div>
@@ -269,6 +275,14 @@
         onAuthStateChanged(auth, (u) => { user = u; });
         startSignIn();
 
+        // 追記部分: 入力欄を数字のみに制限
+        const routeNumberInput = document.getElementById('route-number-input');
+        if (routeNumberInput) {
+            routeNumberInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
+
         let audioCtx;
         const BGM_URL = "https://raw.githubusercontent.com/kono3478/sozai/main/bgm_koneko.mp3";
         let bgmAudio = new Audio(BGM_URL);
@@ -308,19 +322,34 @@
             return `<div class="likert-container">${[1, 2, 3, 4, 5].map(v => `<label class="likert-item"><span class="likert-label">${labels[v-1] || '　'}</span><span class="likert-num">${v}</span><input type="radio" name="${name}" value="${v}" ${v === 3 ? 'checked' : ''}></label>`).join('')}</div>`;
         }
 
-        // Sequential 4-digit ID (0000 - 9999) 発行
+        // スタート時の処理：入力チェック・ルート分岐
         window.handleStartClick = async () => {
+            const inputValue = routeNumberInput.value;
+            const errorEl = document.getElementById('route-number-error');
+
+            // 3桁の数字でない場合は弾く
+            if (!/^[0-9]{3}$/.test(inputValue)) {
+                errorEl.classList.remove('opacity-0');
+                routeNumberInput.classList.add('shake-active');
+                setTimeout(() => routeNumberInput.classList.remove('shake-active'), 300);
+                return;
+            }
+            errorEl.classList.add('opacity-0');
+            const userNumber = parseInt(inputValue, 10);
+
             if (!user) { alert("認証が完了していません。接続を確認してください。"); return; }
+            
             const startBtn = document.getElementById('start-survey-btn');
             startBtn.disabled = true;
-            startBtn.innerText = "ID発行中...";
+            startBtn.innerText = "準備中...";
 
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             bgmAudio.load();
 
             try {
+                // （※連番管理機能の互換性のため、Firestoreのカウンター処理はバックグラウンドで実行だけさせておきます）
                 const counterRef = doc(db, 'artifacts', customAppId, 'public', 'data', 'counter', 'state');
-                const newId = await runTransaction(db, async (transaction) => {
+                await runTransaction(db, async (transaction) => {
                     const counterDoc = await transaction.get(counterRef);
                     let currentCount = 0;
                     if (counterDoc.exists()) {
@@ -331,8 +360,11 @@
                     return currentCount; 
                 });
 
-                sessionData.studentId = newId.toString().padStart(4, '0');
-                userRoute = Math.random() < 0.5 ? 'A' : 'B';
+                // ★追加: 入力された3桁の数字をIDとして記録
+                sessionData.studentId = inputValue;
+                
+                // ★追加: 奇数ならルートA、偶数ならルートB
+                userRoute = (userNumber % 2 !== 0) ? 'A' : 'B';
                 routeSteps = userRoute === 'A' ? [1, 2, 3, 4] : [4, 3, 2, 1];
                 
                 ["q1", "q2", "q3_rule", "q3_graphic", "q3_effect", "q3_sound"].forEach(id => {
@@ -346,7 +378,7 @@
                 });
                 switchScreen('pre');
             } catch (err) {
-                alert("IDの発行に失敗しました。再試行してください。");
+                alert("開始準備に失敗しました。再試行してください。");
                 startBtn.disabled = false;
                 startBtn.innerText = "調査を開始する";
             }
@@ -366,10 +398,25 @@
             showInter();
         };
 
+        // --- 追加: ボタンを一時的に無効化する関数 ---
+        function disableButtonTemporary(btn) {
+            if (!btn) return;
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'pointer-events-none');
+            }, 2000);
+        }
+        // ------------------------------------------
+
         function showInter() {
             const mId = routeSteps[currentStepIndex];
             document.getElementById('inter-desc').innerHTML = `次は <b>モード ${mId}</b> です。<br><span class="text-slate-400 text-sm uppercase">(${modes[mId].label})</span><br><br>30秒間のプレイを開始します。`;
             switchScreen('inter');
+
+            // 追加: STARTボタンを2秒間無効化
+            disableButtonTemporary(document.querySelector('#screen-inter button'));
         }
 
         window.launchMode = () => { setupGame(routeSteps[currentStepIndex]); switchScreen('game'); };
@@ -428,6 +475,9 @@
                 container.innerHTML += `<div class="flex justify-between items-center bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm"><div class="flex flex-col text-left"><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${idx + 1}回目</span><span class="font-black text-slate-800 text-lg">モード ${m}</span></div><div class="text-right"><span class="text-4xl font-black text-slate-900">${sessionData.scores[m] || 0}</span><span class="text-xs font-black text-slate-400 ml-1">pts</span></div></div>`;
             });
             switchScreen('resultsSummary');
+
+            // 追加: アンケートに進むボタンを2秒間無効化
+            disableButtonTemporary(document.querySelector('#screen-game-results button'));
         }
 
         window.showPostSurvey = () => {
@@ -455,7 +505,7 @@
             });
             const isA = userRoute === 'A';
             const q7label = document.getElementById('q7-label');
-            q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？" : "Q7. 要素削減によりおもしろさは減少しましたか？";
+            q7label.textContent = isA ? "Q7. 要素追加によりおもしろさは増加しましたか？（1：変わらない～5：増加した）" : "Q7. 要素削減によりおもしろさは減少しましたか？（1：変わらない～5：減少した）";
             const q7cont = document.getElementById('q7-container'); q7cont.innerHTML = '';
             const pairs = isA ? 
                 [{f:1,t:2,l:"グラフィック追加"},{f:2,t:3,l:"エフェクト追加"},{f:3,t:4,l:"サウンド追加"}] : 
